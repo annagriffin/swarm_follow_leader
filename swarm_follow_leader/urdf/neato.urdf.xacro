@@ -7,8 +7,8 @@
       neato_description/launch/view_model.launch
  -->
 <robot name="neato" xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:include filename="$(find computer_vision)/urdf/common_properties.urdf.xacro"/>
-  <xacro:include filename="$(find computer_vision)/urdf/neato_gazebo.urdf.xacro"/>
+  <xacro:include filename="$(find swarm_follow_leader)/urdf/common_properties.urdf.xacro"/>
+  <xacro:include filename="$(find swarm_follow_leader)/urdf/neato_gazebo.urdf.xacro"/>
   
   <!-- neato --> 
   <xacro:macro name="neato">

@@ -15,7 +15,7 @@
 
   <group ns="robot1">  
     <!-- spawn the first robot -->
-     <include file="$(find computer_vision)/launch/robot.launch">
+     <include file="$(find swarm_follow_leader)/launch/robot.launch">
      <arg name="x" value="$(arg x)"/>
      <arg name="y" value="$(arg y)"/>
      <arg name="z" value="$(arg z)"/>
@@ -27,7 +27,7 @@
 
   <group ns="robot2">  
     <!-- spawn the first robot -->
-     <include file="$(find computer_vision)/launch/robot.launch">
+     <include file="$(find swarm_follow_leader)/launch/robot.launch">
      <arg name="x" value="$(arg x)"/>
      <arg name="y" value="$(arg y)"/>
      <arg name="z" value="$(arg z)"/>

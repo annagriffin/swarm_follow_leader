@@ -6,6 +6,6 @@
        xmlns:xacro="http://ros.org/wiki/xacro">
 
   <!-- Defines the neato component tag. -->
-  <xacro:include filename="$(find computer_vision)/urdf/neato.urdf.xacro" />
+  <xacro:include filename="$(find swarm_follow_leader)/urdf/neato.urdf.xacro" />
   <xacro:neato/>
 </robot>
