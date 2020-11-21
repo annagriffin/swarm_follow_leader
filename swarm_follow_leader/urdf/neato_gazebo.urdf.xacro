@@ -1,0 +1,233 @@
+<?xml version="1.0"?>
+
+<robot name="neato_sim" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="neato_sim">
+
+    <gazebo reference="base_link">
+      <material>Gazebo/DarkGrey</material>
+    </gazebo>
+    
+    <gazebo reference="wheel_left_link">
+      <mu1>1.0</mu1>
+      <mu2>1.0</mu2>
+      <kp>1000000.0</kp>
+      <kd>100.0</kd>
+      <minDepth>0.001</minDepth>
+      <maxVel>1.0</maxVel>
+    </gazebo>
+    
+    <gazebo reference="wheel_right_link">
+      <mu1>1.0</mu1>
+      <mu2>1.0</mu2>
+      <kp>1000000.0</kp>
+      <kd>100.0</kd>
+      <minDepth>0.001</minDepth>
+      <maxVel>1.0</maxVel>
+    </gazebo>
+    
+    <gazebo reference="caster_front_right_link">
+      <mu1>0.0</mu1>
+      <mu2>0.0</mu2>
+      <kp>1000000.0</kp>
+      <kd>100.0</kd>
+      <minDepth>0.001</minDepth>
+      <maxVel>1.0</maxVel>
+    </gazebo>
+    
+    <gazebo reference="caster_front_left_link">
+      <mu1>0.0</mu1>
+      <mu2>0.0</mu2>
+      <kp>1000000.0</kp>
+      <kd>100.0</kd>
+      <minDepth>0.001</minDepth>
+      <maxVel>1.0</maxVel>
+    </gazebo>
+    
+    <gazebo reference="caster_back_right_link">
+      <mu1>0.0</mu1>
+      <mu2>0.0</mu2>
+      <kp>1000000.0</kp>
+      <kd>100.0</kd>
+      <minDepth>0.001</minDepth>
+      <maxVel>1.0</maxVel>
+    </gazebo>
+    
+    <gazebo reference="caster_back_left_link">
+      <mu1>0.0</mu1>
+      <mu2>0.0</mu2>
+      <kp>1000000.0</kp>
+      <kd>100.0</kd>
+      <minDepth>0.001</minDepth>
+      <maxVel>1.0</maxVel>
+    </gazebo>
+    
+    <gazebo reference="base_link">
+      <mu1>0.3</mu1>
+      <mu2>0.3</mu2>
+      <sensor type="contact" name="bumpers">
+        <always_on>1</always_on>
+        <update_rate>10.0</update_rate>
+        <visualize>true</visualize>
+        <contact>
+          <collision>base_footprint_fixed_joint_lump__base_link_collision_1</collision>
+        </contact>
+        <plugin name="gazebo_ros_bumper_controller" filename="libgazebo_ros_bumper.so">
+          <bumperTopicName>bumper</bumperTopicName>
+          <frameName>world</frameName>
+        </plugin>
+      </sensor>
+    </gazebo>
+    
+    <gazebo reference="laser_link">
+      <xacro:if value="$(arg use_gpu_laser)">
+        <sensor type="gpu_ray" name="laser">
+          <always_on>true</always_on>
+          <update_rate>5</update_rate>
+          <ray>
+            <scan>
+              <horizontal>
+                <samples>361</samples>
+                <resolution>1</resolution>
+                <min_angle>${-M_PI}</min_angle>
+                <max_angle>${M_PI}</max_angle>
+              </horizontal>
+            </scan>
+            <range>
+              <min>0.1</min>
+              <max>5</max>
+              <resolution>1</resolution>
+            </range>
+          </ray>
+          <plugin name="gazebo_ros_laser_controller" filename="libgazebo_ros_gpu_laser.so">
+            <topicName>scan</topicName>
+	    <frameName>laser_link</frameName>
+          </plugin>
+        </sensor>
+      </xacro:if>
+      <xacro:unless value="$(arg use_gpu_laser)">
+        <sensor type="ray" name="laser">
+          <always_on>true</always_on>
+          <update_rate>5</update_rate>
+          <ray>
+            <scan>
+              <horizontal>
+                <samples>361</samples>
+                <resolution>1</resolution>
+                <min_angle>${-M_PI}</min_angle>
+                <max_angle>${M_PI}</max_angle>
+              </horizontal>
+            </scan>
+            <range>
+              <min>0.1</min>
+              <max>5</max>
+              <resolution>1</resolution>
+            </range>
+          </ray>
+          <plugin name="gazebo_ros_laser_controller" filename="libgazebo_ros_laser.so">
+            <topicName>scan</topicName>
+	    <frameName>laser_link</frameName>
+          </plugin>
+        </sensor>
+      </xacro:unless>
+    </gazebo>
+
+
+    <gazebo reference="imu_link">
+	    <gravity>true</gravity>
+    <sensor name="imu_sensor" type="imu">
+      <always_on>true</always_on>
+      <update_rate>100</update_rate>
+      <visualize>false</visualize>
+      <topic>__default_topic__</topic>
+      <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+        <topicName>imu</topicName>
+        <bodyName>imu_link</bodyName>
+        <updateRateHZ>10.0</updateRateHZ>
+        <gaussianNoise>0.0</gaussianNoise>
+        <xyzOffset>0 0 0</xyzOffset>
+        <rpyOffset>0 0 0</rpyOffset>
+        <frameName>imu_link</frameName>
+      </plugin>
+      <pose>0 0 0 0 0 0</pose>
+    </sensor>
+    </gazebo>
+ 
+    <gazebo>
+      <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+      <alwaysOn>true</alwaysOn>
+      <updateRate>10</updateRate>
+      <leftJoint>wheel_left_joint</leftJoint>
+      <rightJoint>wheel_right_joint</rightJoint>
+      <wheelSeparation>0.235</wheelSeparation>
+      <wheelDiameter>0.070</wheelDiameter>
+      <torque>1.0</torque>
+      <commandTopic>cmd_vel</commandTopic>
+      <odometryTopic>odom</odometryTopic>
+      <odometryFrame>odom</odometryFrame>
+      <robotBaseFrame>base_footprint</robotBaseFrame>
+      <odometrySource>encoder</odometrySource>
+    </plugin>
+  </gazebo>
+  <gazebo>
+      <plugin filename="libgazebo_ros_joint_state_publisher.so" name="joint_state_publisher">
+        <jointName>wheel_left_joint, wheel_right_joint</jointName>
+        <updateRate>10.0</updateRate>
+        <alwaysOn>true</alwaysOn>
+      </plugin>
+      </gazebo>
+<xacro:if value="$(arg load_camera)">
+  <gazebo reference="camera_link">
+    <sensor type="camera" name="camera">
+      <update_rate>10.0</update_rate>
+      <camera name="camera">
+        <horizontal_fov>1.3962634</horizontal_fov>
+        <image>
+          <width>600</width>
+          <height>600</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>0.0</updateRate>
+        <cameraName>camera</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>camera_link</frameName>
+        <hackBaseline>0.07</hackBaseline>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <gazebo>
+    <visual>
+      <plugin name="gazebo_ros_model_color" filename="libgazebo_ros_model_color.so">
+        <robotNamespace>/</robotNamespace>
+        <serviceName>/neato_color</serviceName>
+        <color>1.0 1.0 1.0 1.0</color>
+      </plugin>
+    </visual>
+  </gazebo>
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/neato</robotNamespace>
+    </plugin>
+  </gazebo>
+</xacro:if>
+  </xacro:macro>
+</robot>

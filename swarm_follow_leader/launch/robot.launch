@@ -1,0 +1,24 @@
+<!--
+  Spawns Neato inside a Gazebo simulation
+  -->
+<launch>
+  <arg name="robot_name" default="mobile_base"/>
+  <arg name="load_camera" default="false"/>
+  <arg name="use_gpu_laser" default="true"/>
+  <arg name="x" default="0"/>
+  <arg name="y" default="0"/>
+  <arg name="z" default="1.5"/>
+  <param name="robot_description"
+        command="$(find xacro)/xacro '$(find computer_vision)/urdf/neato_standalone.urdf.xacro' load_camera:=$(arg load_camera) use_gpu_laser:=$(arg use_gpu_laser)"/>
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_$(arg robot_name)" 
+        args="-x $(arg x) -y $(arg y) -z $(arg z) -unpause -urdf -param robot_description -model $(arg robot_name)" respawn="false">
+  </node>
+  <node pkg="neato_gazebo" type="simulator_adapter.py" name="simulator_adapter"/> 
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="30.0" />
+  </node>
+  <node pkg="neato_node" type="scan_to_pc2" name="pc2publisher"/>  
+  <node pkg="topic_tools" type="relay" name="scan_relayer" args="scan stable_scan"/>  
+  
+  <node pkg="nodelet" type="nodelet" name="$(arg robot_name)_nodelet_manager" args="manager"/>
+</launch>
