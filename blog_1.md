@@ -1,5 +1,7 @@
 # Blog Post 1
-*November 23, 2020*
+*November 23, 2020*<br>
+Richard Gao and Anna Griffin
+<br>
 
 ## Pivot
 We started the final project with the idea to look into and replicate some method of swarm cooperative transport spurred on by our interest in swarm robotics. The aspect of having multiple robot agents working together in a collaborative task was appealing. However, upon digging deeper into the topic space and [existing implementations](https://www.frontiersin.org/articles/10.3389/frobt.2018.00059/full) we realized the magnitude of the task that lay before us. The current methods in place all involve a heavy lift in physics and simulation which given the project timeline and our learning goals didn’t make sense to commit to. Therefore, we decided to take a step back and access what interested us in the swarm robotics space in the first place. With careful thought, we realized once again the aspect of building out a multi-robot system that cooperates with one another is what generates the most excitement for us.
