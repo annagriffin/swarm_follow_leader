@@ -620,9 +620,7 @@
         </surface>
       </collision>
     </link>
-    <model name='Marker0'>
-      <static>1</static>
-      <link name='link'>
+      <link name='marker_link'>
         <visual name='visual'>
           <geometry>
             <mesh>
@@ -632,8 +630,11 @@
           </geometry>
         </visual>
       </link>
-      <pose>-0.000851 0.001169 0.049696 0 -0 0</pose>
-    </model>
+      <joint name='marker_joint' type='fixed'>
+        <parent>base_footprint</parent>
+      <child>marker_link</child>
+      <pose>0 0 0 6 -0 0</pose>
+      </joint>
     <joint name='wheel_left_joint' type='revolute'>
       <parent>base_footprint</parent>
       <child>wheel_left_link</child>
