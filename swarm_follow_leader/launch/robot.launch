@@ -8,11 +8,10 @@
   <arg name="x" default="0"/>
   <arg name="y" default="0"/>
   <arg name="z" default="1.5"/>
-  <!-- <param name="robot_description"
-        command="$(find xacro)/xacro '$(find swarm_follow_leader)/urdf/neato_standalone.urdf.xacro' load_camera:=$(arg load_camera) use_gpu_laser:=$(arg use_gpu_laser)"/> -->
-
+  <param name="robot_description"
+        command="$(find xacro)/xacro '$(find swarm_follow_leader)/urdf/neato_standalone.urdf.xacro' load_camera:=$(arg load_camera) use_gpu_laser:=$(arg use_gpu_laser)"/>
   <node pkg="gazebo_ros" type="spawn_model" name="spawn_$(arg robot_name)" 
-        args="-x $(arg x) -y $(arg y) -z $(arg z) -unpause -sdf -file $(find swarm_follow_leader)/models/base_with_marker/model.sdf -model $(arg robot_name) " respawn="false">
+        args="-x $(arg x) -y $(arg y) -z $(arg z) -unpause -urdf -param robot_description -model $(arg robot_name)" respawn="false">
   </node>
   <node pkg="neato_gazebo" type="simulator_adapter.py" name="simulator_adapter"/> 
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
