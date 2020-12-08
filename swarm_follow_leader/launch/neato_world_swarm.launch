@@ -19,7 +19,7 @@
      <arg name="x" value="$(arg x)"/>
      <arg name="y" value="$(arg y)"/>
      <arg name="z" value="$(arg z)"/>
-     <arg name="load_camera" value="$(arg load_camera)"/>
+     <arg name="load_camera" value="true"/>
      <arg name="use_gpu_laser" value="$(arg use_gpu_laser)"/>
      <arg name="robot_name" value="robot1"/>
     </include>
