@@ -4,7 +4,7 @@
     images with opencv in ROS. """
 
 import rospy
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import Image, CameraInfo
 from copy import deepcopy
 from cv_bridge import CvBridge
 import cv2
@@ -26,16 +26,20 @@ class BallTracker(object):
         self.bridge = CvBridge()
 
         rospy.Subscriber(image_topic, Image, self.process_image)
+        rospy.Subscriber('/robot1/camera/camera_info', CameraInfo, self.camera_info)
         self.pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
+        self.K_matrix = None
         self.dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
         self.ref_dimension = 400
 
         cv2.namedWindow('video_window')
 
+    def camera_info(self, msg):
+        self.K_matrix = msg.K
+
     def process_image(self, msg):
         """ Process image messages from ROS and stash them in an attribute
             called cv_image for subsequent processing """
-
         self.cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
         self.binary_image = cv2.inRange(
             self.cv_image, (200, 200, 200), (255, 255, 255))
@@ -194,6 +198,21 @@ class BallTracker(object):
           [0, self.ref_dimension]], dtype="float32")
       # compute the perspective transform matrix and then apply it
       M = cv2.getPerspectiveTransform(rect, dst)
+
+      num, Rs, Ts, Ns  = cv2.decomposeHomographyMat(M, self.K_matrix)
+      print("num: ", num)
+      print("Rs: ", Rs)
+      print("Ts: ", Ts)
+      print("Ns: ", Ns)
+      print()
+
+    #   num possible solutions will be returned.
+
+    #     Rs contains a list of the rotation matrix.
+    #     Ts contains a list of the translation vector.
+    #     Ns contains a list of the normal vector of the plane.
+
+
       warped = cv2.warpPerspective(image, M, (self.ref_dimension, self.ref_dimension))
       # return the warped image
       return warped
@@ -243,5 +262,5 @@ class BallTracker(object):
 
 
 if __name__ == '__main__':
-    node = BallTracker("/camera/image_raw")
+    node = BallTracker("/robot1/camera/image_raw")
     node.run()
