@@ -26,7 +26,7 @@
   </group>
 
   <group ns="robot2">  
-    <!-- spawn the first robot -->
+    <!-- spawn the second robot -->
      <include file="$(find swarm_follow_leader)/launch/robot.launch">
      <arg name="x" value="$(arg x)"/>
      <arg name="y" value="$(arg y)"/>
