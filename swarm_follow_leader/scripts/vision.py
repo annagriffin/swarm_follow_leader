@@ -26,7 +26,8 @@ class BallTracker(object):
         self.bridge = CvBridge()
 
         rospy.Subscriber(image_topic, Image, self.process_image)
-        rospy.Subscriber('/robot1/camera/camera_info', CameraInfo, self.camera_info)
+        rospy.Subscriber('/robot1/camera/camera_info',
+                         CameraInfo, self.camera_info)
         self.pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
         self.K_matrix = None
         self.dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
@@ -187,24 +188,25 @@ class BallTracker(object):
         return rect
 
     def four_point_transform(self, image, pts):
-          # obtain a consistent order of the points and unpack them
-          # individually
-      rect = self.order_points(pts)
-      
-      dst = np.array([
-          [0, 0],
-          [self.ref_dimension, 0],
-          [self.ref_dimension, self.ref_dimension],
-          [0, self.ref_dimension]], dtype="float32")
-      # compute the perspective transform matrix and then apply it
-      M = cv2.getPerspectiveTransform(rect, dst)
+        # obtain a consistent order of the points and unpack them
+        # individually
+        rect = self.order_points(pts)
 
-      num, Rs, Ts, Ns  = cv2.decomposeHomographyMat(M, self.K_matrix)
-      print("num: ", num)
-      print("Rs: ", Rs)
-      print("Ts: ", Ts)
-      print("Ns: ", Ns)
-      print()
+        dst = np.array([
+            [0, 0],
+            [self.ref_dimension, 0],
+            [self.ref_dimension, self.ref_dimension],
+            [0, self.ref_dimension]], dtype="float32")
+        # compute the perspective transform matrix and then apply it
+        M = cv2.getPerspectiveTransform(rect, dst)
+
+        num, Rs, Ts, Ns = cv2.decomposeHomographyMat(M, self.K_matrix)
+
+    #   print("num: ", num)
+    #   print("Rs: ", Rs)
+    #   print("Ts: ", Ts)
+    #   print("Ns: ", Ns)
+    #   print()
 
     #   num possible solutions will be returned.
 
@@ -212,10 +214,30 @@ class BallTracker(object):
     #     Ts contains a list of the translation vector.
     #     Ns contains a list of the normal vector of the plane.
 
+        x = 500
+        y = 500
+        H = Rs[0]
+        h1 = H[0][1]
+        h2 = H[0][2]
+        h0 = H[0][0]
+        h3 = H[1][0]
+        h4 = H[1][1]
+        h5 = H[1][2]
+        h6 = H[2][0]
+        h7 = H[2][1]
+        h8 = H[2][2]
 
-      warped = cv2.warpPerspective(image, M, (self.ref_dimension, self.ref_dimension))
-      # return the warped image
-      return warped
+        tx = (h0*x + h1*y + h2)
+        ty = (h3*x + h4*y + h5)
+        tz = (h6*x + h7*y + h8)
+
+        px = int(tx/tz)
+        py = int(ty/tz)
+
+        warped = cv2.warpPerspective(
+        image, M, (self.ref_dimension, self.ref_dimension))
+        # return the warped image
+        return warped, (px, py)
 
     def run(self):
         """ The main run loop, in this node it doesn't do anything """
@@ -235,24 +257,34 @@ class BallTracker(object):
                     contour_poly_curve = cv2.approxPolyDP(
                         contour, 0.01 * cv2.arcLength(contour, closed=True), closed=True)
                     if 2000 < contour_area < 22600 and len(contour_poly_curve) == 4:
-                        print("got here")
                         # Draw the selected Contour matching the criteria fixed
                         cv2.drawContours(
                             self.cv_image, [contour_poly_curve], 0, (0, 0, 225), 1)
 
                         corners = np.reshape(
                             (np.float32(contour_poly_curve)), (4, 2))
-                     
 
                         for each in corners:
                             cv2.circle(self.cv_image,
                                        (each[0], each[1]), 4, (0, 0, 255), -1)
 
-                        warped = self.four_point_transform(self.cv_image, corners)
+                        # compute the center of the contour
+                        # M = cv2.moments(contour_poly_curve)
+                        # cX = int(M["m10"] / M["m00"])
+                        # cY = int(M["m01"] / M["m00"])
+                        # # draw the contour and center of the shape on the image
+                        # cv2.circle(self.cv_image, (cX, cY), 2, (255, 255, 255), -1)
+                        # cv2.putText(self.cv_image, "center", (cX - 20, cY - 20),
+                        #     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                        # # show the image
+
+                        warped, pts = self.four_point_transform(
+                            self.cv_image, corners)
+                        print("pints:   ", pts)
+
+                        cv2.circle(self.cv_image, pts, 4, (0, 255, 255), -1)
+
                         cv2.imshow("warped", warped)
-
-
-
 
                 cv2.imshow('video_window', self.cv_image)
                 cv2.waitKey(5)
