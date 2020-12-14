@@ -1,5 +1,5 @@
 # SITE CONFIGURATION
-baseurl: "docs"
+baseurl: "swarm_follow_leader/"
 url: "https://annagriffin.github.io/"
 
 # THEME-SPECIFIC CONFIGURATION
