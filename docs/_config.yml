@@ -6,8 +6,8 @@ url: "https://annagriffin.github.io/"
 theme_settings:
   # Meta
   title: Type Theme
-  avatar: assets/img/avatar.png
-  favicon: assets/favicon.ico
+  avatar: docs/assets/img/avatar.png
+  favicon: docs/assets/favicon.ico
   gravatar: # Email MD5 hash
   description: "A website with blog posts and pages" # used by search engines
 
@@ -22,14 +22,14 @@ theme_settings:
 
   # Icons
   rss: false
-  email_address: # Full email address, e.g. "sam@example.com"
+  email_address: "anna.griffin@students.olin.edu"
   behance:
   bitbucket:
   dribbble:
   facebook:
   flickr:
   gitlab:
-  github: "rohanchandra/type-theme"
+  github: "annagriffin/swarm_follow_leader"
   gitter:
   google_plus:
   instagram:
