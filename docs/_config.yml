@@ -9,13 +9,12 @@ theme_settings:
   avatar: assets/img/avatar.png
   favicon: assets/favicon.ico
   gravatar: # Email MD5 hash
-  description: "A website with blog posts and pages" # used by search engines
+  description: "A website to accompany a Computational Robotics Final Project at Olin College of Engineering" # used by search engines
 
   # Header and footer text
   header_text: >
-     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+     <p>Hi there! Thanks for visiting our project website :) This is our final project for the class ENGR3590 A Computational Introduction to Robotics at <a href="https://www.olin.edu//">Olin College of Engineering</a>. We have implemented a follow the leader simulation using Neatos, ROS, and Gazebo.</p>
 
-     <p>Remove all header text in <code>_config.yml</code> to disable this feature.</p>
   header_text_feature_image:
   footer_text: >
    Powered by <a href="https://jekyllrb.com/">Jekyll</a> with <a href="https://github.com/rohanchandra/type-theme">Type Theme</a>
