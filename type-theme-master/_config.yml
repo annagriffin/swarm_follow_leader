@@ -1,6 +1,6 @@
 # SITE CONFIGURATION
-baseurl: "/type-theme"
-url: "https://rohanchandra.github.io/"
+baseurl: "swarm_follow_leader/type-theme-master"
+url: "https://annagriffin.github.io/"
 
 # THEME-SPECIFIC CONFIGURATION
 theme_settings:
