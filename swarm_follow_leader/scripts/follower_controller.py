@@ -11,34 +11,41 @@ class Follower:
     def __init__(self, robot_ns):
         rospy.init_node('Follower')
 
+        # Setup publishers and subscribers
         self.vel_pub = rospy.Publisher(f'/{robot_ns}/cmd_vel', Twist, queue_size=10)
         rospy.Subscriber(f'/{robot_ns}/scan', LaserScan, self.process_scan)
 
+        # Define instance variables
+        self.laser_distances = [-1, -1, -1]
+
     def process_scan(self, msg):
         """ Process lidar scan data and extracts distance measurements from left, right and front """
-        pass
-
+        angles = [90, 270, 0] # left, right, and front lidar angles
+        self.laser_distances = [msg.ranges[theta] for theta in angles]
+        
     def fuzzy_formation(self):
         """ Fuzzy logic controller that determines the robot commands to keep in formation """
-        pass
+        # Inputs to the formation FLC are angle (phi) and distance (d)
+        # TODO: use AR tags now instead of following paper
+        phi = self.get_heading() - self.get_alpha()
+        d = self.get_distance_to_leader()
+
 
     def fuzzy_collision_avoidance(self):
         """ Fuzzy logic controller that determines the robot commands to avoid obstacles """
-        pass
+    pass
 
+        
     def fuzzy_fusion(self):
         """ Fuzzy logic controller that combines formation and collision avoidance """
         pass
 
-    def get_heading(self):
-        """ Determine heading of the follower in the world coordinate frame """
+    def get_leader_position(self):
+        """ Estimates leader position using AR tags. Determines leader relative angle to follower's center axis"""
         pass
 
-    def get_alpha(self):
-        """ Calculate angle between follower and leader (alpha) """
-        # TODO: Figure out how to use AR tags and computer vision to do this. If not possible, might
-        # have to fall back onto having to use odometry to relay leader position (x, y) and 
-        # calculate alpha to follower 
+    def get_distance_to_leader(sef):
+        """ Calculates distance from follower to leader """
         pass
 
     def run(self):
