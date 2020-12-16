@@ -55,17 +55,18 @@ avoidance_engine.output_variables = [
         name='Rotation',
         description='',
         enabled=True,
-        minimum=-90,
-        maximum=90,
+        minimum=-3,
+        maximum=3,
         lock_range=True,
         aggregation=fl.Maximum(),
         defuzzifier=fl.Centroid(), # Maybe play with the resolution of centroid?
         terms=[
-            fl.Ramp('very_left', -45, -90),
-            fl.Triangle('left', -90, -45, 0),
-            fl.Triangle('straight_ahead', -45, 0, 45),
-            fl.Triangle('right', 0, 45, 90),
-            fl.Ramp('very_right', 45, 90)
+            # Angular velocity (used be to degree of rotation mapped from -90 to 90 but /cmd_vel expects angular velocity)
+            fl.Ramp('very_left', 1, 3),
+            fl.Triangle('left', 0, 1, 3),
+            fl.Triangle('straight_ahead', -1, 0, 1),
+            fl.Triangle('right', -3, -1, 0),
+            fl.Ramp('very_right', -1, -3)
         ]
     ),
     fl.OutputVariable(
