@@ -19,7 +19,7 @@ class Follower:
         # Setup publishers and subscribers
         self.vel_pub = rospy.Publisher(f'/{robot_ns}/cmd_vel', Twist, queue_size=10)
         rospy.Subscriber(f'/{robot_ns}/scan', LaserScan, self.process_scan)
-        # rospy.Subscriber(f'/{robot_ns}/angle_to_leader', Float32, self.process_leader_angle)
+        rospy.Subscriber(f'/{robot_ns}/angle_to_leader', Float32, self.process_leader_angle)
         # self.vel_pub = rospy.Publisher(f'/cmd_vel', Twist, queue_size=10)
         # rospy.Subscriber(f'/scan', LaserScan, self.process_scan)
 
@@ -107,12 +107,16 @@ class Follower:
             #     m.angular.z =  r_final
 
             #     self.vel_pub.publish(m)
-            if self.all_lidar_data:
-                print(self.all_lidar_data[0])
+      
             if self.all_lidar_data and self.offset_angle:
                 print(self.all_lidar_data)
-                # print("Lidar distance at 0 degrees:", self.all_lidar_data[0])
-                # print(f'Offset Lidar distance at {int(self.offset_angle)} degrees:', self.all_lidar_data[(360-int(self.offset_angle))%360])
+                print("Lidar distance at 0 degrees:", self.all_lidar_data[0])
+                print(f'Offset Lidar distance at {int(self.offset_angle)} degrees:', self.all_lidar_data[(360-int(self.offset_angle))%360])
+            else:
+                # Reset data
+                self.all_lidar_data = None
+                self.laser_distances = None
+                self.offset_angle = None
 
             r.sleep()
 
