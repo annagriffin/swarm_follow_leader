@@ -166,21 +166,11 @@ if __name__ == "__main__":
     rotation = avoidance_engine.output_variable('Rotation')
     velocity = avoidance_engine.output_variable('Velocity')
 
-    # print(rotation.terms[0].direction)
+    left_laser.value = 2.5
+    right_laser.value = 2.5
+    front_laser.value = .1
 
-    # I have fked up defining linear
-    test = velocity.highest_membership(-.4)
-    print(test)
-    print(test[1].name)
-    # print(left_laser.terms)
+    avoidance_engine.process()
 
-    # left_laser.value = 3.8
-    # print(left_laser.terms)
-    # right_laser.value(5)
-    # front_laser.value(5)
-
-    test = rotation.highest_membership(10)
-    # print(test[0])
-    # print(test[1].name)
-
-    # avoidance_engine.process()
+    print('Rotation:', rotation.value)
+    print('Velocity:', velocity.value)
