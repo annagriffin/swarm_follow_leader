@@ -70,9 +70,9 @@
       <link name="lidar_target_link">
     <visual>
       <geometry>
-        <box size="0.05 0.05 0.2"/>
+        <box size="0.05 0.1 0.2"/>
       </geometry>
-      <origin xyz="-0.1 0 0.1" rpy="${M_PI/2} 0 0"/>
+      <origin xyz="-0.1 0 0.12" rpy="${M_PI/2} 0 0"/>
 
     </visual>
   </link>
