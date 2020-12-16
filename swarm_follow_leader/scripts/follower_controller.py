@@ -5,6 +5,7 @@ import rospy
 from geometry_msgs.msg import Twist, Vector3
 from sensor_msgs.msg import LaserScan
 import numpy as np
+from avoidance_engine import avoidance_engine
 
 class Follower:
     """" ROS node for follower robot controller """
@@ -33,7 +34,7 @@ class Follower:
 
     def fuzzy_collision_avoidance(self):
         """ Fuzzy logic controller that determines the robot commands to avoid obstacles """
-    pass
+        avoidance_engine.get_input_variable
 
         
     def fuzzy_fusion(self):
