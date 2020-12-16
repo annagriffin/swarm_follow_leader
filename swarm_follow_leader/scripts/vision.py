@@ -9,6 +9,7 @@ from copy import deepcopy
 from cv_bridge import CvBridge
 import cv2
 import numpy as np
+import math
 from geometry_msgs.msg import Twist, Vector3
 
 
@@ -25,9 +26,11 @@ class BallTracker(object):
         # used to convert ROS messages to OpenCV
         self.bridge = CvBridge()
 
+        self.h_field_of_view = 1.3962634  # radians
+
         rospy.Subscriber(image_topic, Image, self.process_image)
         rospy.Subscriber('/robot1/camera/camera_info',
-                         CameraInfo, self.camera_info)
+                         CameraInfo, self.process_camera_info)
         self.pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
         self.K_matrix = None
         self.dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
@@ -35,8 +38,38 @@ class BallTracker(object):
 
         cv2.namedWindow('video_window')
 
-    def camera_info(self, msg):
+    def process_camera_info(self, msg):
+        # print(msg)
+        # print()
         self.K_matrix = msg.K
+        self.width = msg.width
+        self.focal_length = self.get_focal_length(self.width, self.h_field_of_view)
+
+
+    def get_focal_length(self, width, fov):
+        
+        return (width / 2) / (math.tan(fov/2))
+
+    
+    def get_distance_to_camera(self):
+
+        return (width * focal_length) / p_width
+
+    def get_perceived_width(self, corners):
+
+        x_vals = [i[0] for i in corners]
+        return (max(x_vals) - min(x_vals))
+
+
+    def get_angle(self, center_x, center_y):
+
+
+        return (center_x - (with / 2)) * (focal_length / 2)
+
+
+    def get_dist(self, center_x, center_y):
+        pass
+
 
     def process_image(self, msg):
         """ Process image messages from ROS and stash them in an attribute
@@ -44,6 +77,8 @@ class BallTracker(object):
         self.cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
         self.binary_image = cv2.inRange(
             self.cv_image, (200, 200, 200), (255, 255, 255))
+
+
 
     def get_h_matrices(self, poly_curve, x, y, orientation=0):
         """
@@ -264,6 +299,9 @@ class BallTracker(object):
                         corners = np.reshape(
                             (np.float32(contour_poly_curve)), (4, 2))
 
+                        width = self.get_perceived_width(corners)
+                        print(width)
+
                         for each in corners:
                             cv2.circle(self.cv_image,
                                        (each[0], each[1]), 4, (0, 0, 255), -1)
@@ -280,7 +318,7 @@ class BallTracker(object):
 
                         warped, pts = self.four_point_transform(
                             self.cv_image, corners)
-                        print("pints:   ", pts)
+                        # print("points:   ", pts)
 
                         cv2.circle(self.cv_image, pts, 4, (0, 255, 255), -1)
 
