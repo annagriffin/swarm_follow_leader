@@ -12,27 +12,31 @@ formation_engine.input_variables = [
         name='Angle',
         description='',
         enabled=True,
-        minimum=0.0,
-        maximum=5.0,
+        minimum=-40,
+        maximum=40,
         lock_range=True,
         terms=[
-            # Ramp is defined so that start is the bottom of ramp and end is the top
-            fl.Ramp('near', 2.5, 0), 
-            fl.Triangle('medium', 1.25, 2.5, 3.75),
-            fl.Ramp('far', 2.5, 5)
+            fl.Ramp('very_negative', -20, -35), 
+            fl.Trapazoid('negative', -25, -20, -5, -.5),
+            fl.Trapazoid('zero', -5, -2.5, 2.5, 5),
+            fl.Trapazoid('positive', .5, 5, 20, 25),
+            fl.Ramp('very_positive', 20, 35)
         ]
     ),
     fl.InputVariable(
         name='Distance',
         description='',
         enabled=True,
-        minimum=0.0,
+        minimum=-5.0,
         maximum=5.0,
         lock_range=True,
         terms=[
-            fl.Ramp('near', 2.5, 0),
-            fl.Triangle('medium', 1.25, 2.5, 3.75),
-            fl.Ramp('far', 2.5, 5)
+            # Probably need tweak these variables
+            fl.Ramp('very_negative', -.3, -1), 
+            fl.Trapazoid('negative', -.5, -.3, -.25, -.1),
+            fl.Trapazoid('zero', -.1, -.05, .05, .1),
+            fl.Trapazoid('positive', .1, .25, .3, .5),
+            fl.Ramp('very_positive', .3, 1)
         ]
     ),                      
 ]
@@ -40,7 +44,7 @@ formation_engine.input_variables = [
 formation_engine.output_variables = [
     fl.OutputVariable(
         name='Rotation',
-        description='',
+        description='Rotational/angular velocity',
         enabled=True,
         minimum=-3,
         maximum=3,
@@ -48,16 +52,16 @@ formation_engine.output_variables = [
         aggregation=fl.Maximum(),
         defuzzifier=fl.Centroid(),
         terms=[
-            fl.Ramp('very_left', 1, 3),
-            fl.Triangle('left', 0, 1, 3),
-            fl.Triangle('straight_ahead', -1, 0, 1),
-            fl.Triangle('right', -3, -1, 0),
             fl.Ramp('very_right', -1, -3)
+            fl.Triangle('right', -3, -1, 0),
+            fl.Triangle('straight_ahead', -1, 0, 1),
+            fl.Triangle('left', 0, 1, 3),
+            fl.Ramp('very_left', 1, 3),
         ]
     ),
     fl.OutputVariable(
         name='Velocity',
-        description='',
+        description='Translational velocity',
         enabled=True,
         minimum=-.5,
         maximum=1,

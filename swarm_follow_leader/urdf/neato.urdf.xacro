@@ -53,7 +53,7 @@
     <link name='marker_link'>
       <visual>
         <geometry>
-          <mesh filename="model://marker0/meshes/Marker0.dae" scale="0.4 0.4 0.4"/>
+          <mesh filename="package://swarm_follow_leader/models/marker0/meshes/Marker0.dae" scale="0.4 0.4 0.4"/>
         </geometry>
         <origin xyz="0 0 0.4" rpy="${M_PI/2} 0 0"/>
       </visual>

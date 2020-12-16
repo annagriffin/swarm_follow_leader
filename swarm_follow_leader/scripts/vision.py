@@ -20,7 +20,7 @@ class AngleFinder(object):
         The node will calculate the angle between the current robot and a leader
         robot if one is in view. """
 
-    def __init__(self, image_topic):
+    def __init__(self, robot_ns):
         """ Initialize the angle finder """
         rospy.init_node('angle_finder')
         self.cv_image = None                        # the latest image from the camera
@@ -29,10 +29,10 @@ class AngleFinder(object):
 
         self.h_field_of_view = 1.3962634  # radians
 
-        rospy.Subscriber(image_topic + 'image_raw', Image, self.process_image)
-        rospy.Subscriber(image_topic + 'camera_info',
+        rospy.Subscriber(f'/{robot_ns}/camera/image_raw', Image, self.process_image)
+        rospy.Subscriber(f'/{robot_ns}/camera/camera_info',
                          CameraInfo, self.process_camera_info)
-        self.pub = rospy.Publisher('angle_to_leader', Float32, queue_size=10)
+        self.pub = rospy.Publisher(f'/{robot_ns}/angle_to_leader', Float32, queue_size=10)
         # self.pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
         self.K_matrix = None
         self.tag_width = 0.4 # meters
@@ -134,7 +134,7 @@ class AngleFinder(object):
                     contour_area = cv2.contourArea(contour)
                     contour_poly_curve = cv2.approxPolyDP(
                         contour, 0.01 * cv2.arcLength(contour, closed=True), closed=True)
-                    if 2000 < contour_area < 22600 and len(contour_poly_curve) == 4:
+                    if 1000 < contour_area < 22600 and len(contour_poly_curve) == 4:
                         # Draw the selected Contour matching the criteria fixed
                         cv2.drawContours(
                             self.cv_image, [contour_poly_curve], 0, (0, 0, 225), 1)
@@ -179,5 +179,5 @@ class AngleFinder(object):
 
 
 if __name__ == '__main__':
-    node = AngleFinder("/robot1/camera/")
+    node = AngleFinder("robot1")
     node.run()
