@@ -10,18 +10,19 @@ from cv_bridge import CvBridge
 import cv2
 import numpy as np
 import math
+from std_msgs.msg import Float32
 from geometry_msgs.msg import Twist, Vector3
 
 
-class BallTracker(object):
-    """ The BallTracker is a Python object that encompasses a ROS node 
-        that can process images from the camera and search for a ball within.
-        The node will issue motor commands to move forward while keeping
-        the ball in the center of the camera's field of view. """
+class AngleFinder(object):
+    """ The AngleFinder is a Python object that encompasses a ROS node 
+        that can process images from the camera and search for a leader robot within.
+        The node will calculate the angle between the current robot and a leader
+        robot if one is in view. """
 
     def __init__(self, image_topic):
-        """ Initialize the ball tracker """
-        rospy.init_node('ball_tracker')
+        """ Initialize the angle finder """
+        rospy.init_node('angle_finder')
         self.cv_image = None                        # the latest image from the camera
         # used to convert ROS messages to OpenCV
         self.bridge = CvBridge()
@@ -31,7 +32,8 @@ class BallTracker(object):
         rospy.Subscriber(image_topic + 'image_raw', Image, self.process_image)
         rospy.Subscriber(image_topic + 'camera_info',
                          CameraInfo, self.process_camera_info)
-        self.pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
+        self.pub = rospy.Publisher('angle_to_leader', Float32, queue_size=10)
+        # self.pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
         self.K_matrix = None
         self.tag_width = 0.4 # meters
         self.camera_width = None
@@ -78,9 +80,6 @@ class BallTracker(object):
         return ((center_x - float(self.camera_width / 2)) / self.camera_width) * (math.degrees(self.h_field_of_view))
 
 
-    def get_dist(self, center_x, center_y):
-        pass
-
 
     def order_points(self, pts):
         # initialzie a list of coordinates that will be ordered
@@ -115,28 +114,17 @@ class BallTracker(object):
         # compute the perspective transform matrix and then apply it
         M = cv2.getPerspectiveTransform(rect, dst)
 
-        # num, Rs, Ts, Ns = cv2.decomposeHomographyMat(M, self.K_matrix)
-
-
-    #   num possible solutions will be returned.
-
-    #     Rs contains a list of the rotation matrix.
-    #     Ts contains a list of the translation vector.
-    #     Ns contains a list of the normal vector of the plane.
-
         warped = cv2.warpPerspective(
         image, M, (self.ref_dimension, self.ref_dimension))
         # return the warped image
         return warped
 
     def run(self):
-        """ The main run loop, in this node it doesn't do anything """
+        """ The main run loop """
         r = rospy.Rate(5)
         while not rospy.is_shutdown():
             if not self.cv_image is None:
-                # print(self.cv_image.shape)
 
-                img_org = deepcopy(self.cv_image)
                 grey = cv2.cvtColor(self.cv_image, cv2.COLOR_BGR2GRAY)
                 edged = cv2.Canny(grey, 30, 200)
                 _, frame_thresh = cv2.threshold(edged, 220, 255, 0)
@@ -155,9 +143,6 @@ class BallTracker(object):
                             (np.float32(contour_poly_curve)), (4, 2))
 
                         # d = self.get_distance_to_camera(corners)
-        
-
-
                         # width = self.get_perceived_width(corners)
 
                         for each in corners:
@@ -176,13 +161,16 @@ class BallTracker(object):
 
                         cv2.putText(self.cv_image, "center", (cX - 20, cY - 20),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
                         if not self.focal_length is None:
                             angle = self.get_angle(cX, cY)
+                            self.pub.publish(angle)
                             print(angle)
+
                         warped = self.four_point_transform(
                             self.cv_image, corners)
 
-                        cv2.imshow("warped", warped)
+                        # cv2.imshow("warped", warped)
 
                 cv2.imshow('video_window', self.cv_image)
                 cv2.waitKey(5)
@@ -191,5 +179,5 @@ class BallTracker(object):
 
 
 if __name__ == '__main__':
-    node = BallTracker("/robot1/camera/")
+    node = AngleFinder("/robot1/camera/")
     node.run()
