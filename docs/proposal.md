@@ -1,9 +1,9 @@
-# Project Proposal
-*CompRobo Final Project: Swarm Follow the Leader*<br>
-Richard Gao and Anna Griffin
-
-
-<br>
+---
+layout: page
+title: Project Proposal
+permalink: /proposal/
+feature-img: "assets/img/sample_feature_img_3.png"
+---
 
 ## What is the main idea of your project?
 Swarm Follow the Leader
