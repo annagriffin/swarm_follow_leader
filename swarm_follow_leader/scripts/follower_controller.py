@@ -22,8 +22,6 @@ class Follower:
         self.vel_pub = rospy.Publisher(f'/{robot_ns}/cmd_vel', Twist, queue_size=10)
         rospy.Subscriber(f'/{robot_ns}/scan', LaserScan, self.process_scan)
         rospy.Subscriber(f'/{robot_ns}/angle_to_leader', Float32, self.process_leader_angle)
-        # self.vel_pub = rospy.Publisher(f'/cmd_vel', Twist, queue_size=10)
-        # rospy.Subscriber(f'/scan', LaserScan, self.process_scan)
 
         # Define instance variables
         self.all_lidar_data = None
@@ -53,9 +51,11 @@ class Follower:
         """ Process lidar scan data and extracts distance measurements from left, right and front """
         self.all_lidar_data = msg.ranges[:360]
 
-        # TODO: Make more robust my taking an average of points around the directions instead of one lidar data point
-        angles = [90, 270, 0] # left, right, and front lidar angles
+        # left, right, and front lidar angles
+        angles = [90, 270, 0] 
         self.laser_distances = [self.get_average_distance(theta, 7) for theta in angles]
+
+        # For debugging purposes, collects all angles that the lidar dectects distances
         self.all_detected = [i for i, angle in enumerate(msg.ranges) if not (angle == float('inf'))]
         
     def process_leader_angle(self, msg):
@@ -95,22 +95,16 @@ class Follower:
             return None, None
 
         # Feed offset angle and offset distance as input to the fuzzy controller
-        # can anna get distance using ar tag?
         self.angle.value = self.offset_angle
-        print('Lidar distance at direct angle:', self.all_lidar_data[(360-int(self.offset_angle))%360])
         actual_offset_distance = self.get_average_distance((360-int(self.offset_angle)), 3)
 
         if actual_offset_distance is None:
             return None, None
 
         self.distance.value = self.desired_distance - actual_offset_distance
-        print('Distance value:', self.distance.value, 'actual distance:', actual_offset_distance)
 
         # Perform fuzzy inference
         formation_engine.process()
-
-        # print('Distance value:', self.distance.value, actual_offset_distance)
-        # print(self.vel_formation.name)
 
         return self.vel_formation.value, self.rot_formation.value
 
@@ -157,9 +151,12 @@ class Follower:
 
             # Merge fuzzy controller outputs
             if v1 is not None and v2 is not None:
-                # print('vel1:', v1, 'rot1:', r1, 'vel2:', v2, 'rot2:', r2)
                 v_final, r_final = self.fuzzy_fusion(v1, r1, v2, r2)
                 
+                print('Formation vel:', round(v1, 4), 'Formation rot:', round(r1, 4), \
+                      'Collision vel:', round(v2, 4), 'Collision rot', round(r2, 4), \
+                      'Fusion vel:', round(v_final, 4), 'Fusion rot:', round(r_final, 4))
+                      
                 # m.linear.x = 0
                 m.linear.x = v_final
                 m.angular.z =  r_final

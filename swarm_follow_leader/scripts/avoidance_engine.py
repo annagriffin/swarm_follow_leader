@@ -1,4 +1,4 @@
-""" Code establishing the fuzzy logic controller for collision avoidance """
+""" Establishes the fuzzy logic controller for collision avoidance """
 
 import fuzzylite as fl
 
@@ -59,7 +59,7 @@ avoidance_engine.output_variables = [
         maximum=1.5,
         lock_range=True,
         aggregation=fl.Maximum(),
-        defuzzifier=fl.Centroid(), # Maybe play with the resolution of centroid?
+        defuzzifier=fl.Centroid(),
         terms=[
             # Angular velocity (used be to degree of rotation mapped from -90 to 90 but /cmd_vel expects angular velocity)
             fl.Ramp('very_right', -.75, -1.5),
@@ -77,7 +77,7 @@ avoidance_engine.output_variables = [
         maximum=.6,
         lock_range=True,
         aggregation=fl.Maximum(),
-        defuzzifier=fl.Centroid(), # Maybe play with the resolution of centroid?
+        defuzzifier=fl.Centroid(),
         terms=[
             fl.Ramp('reverse', 0, -.5),
             fl.Triangle('stop', -.05, 0, .05),

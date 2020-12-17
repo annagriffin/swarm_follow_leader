@@ -1,4 +1,4 @@
-""" Code establishing the fuzzy logic controller for staying in formation """
+""" Establishes the fuzzy logic controller for staying in formation """
 
 import fuzzylite as fl
 
@@ -31,11 +31,12 @@ formation_engine.input_variables = [
         maximum=5.0,
         lock_range=True,
         terms=[
-            # Probably need tweak these variables
+            # Tweak these variables if necessasry to get ratio of distance to translational 
+            # velocity right for a given desired distance
             fl.Ramp('very_negative', -.25, -1), 
-            fl.Trapezoid('negative', -.3, -.25, -.2, -.1),
-            fl.Trapezoid('zero', -.1, -.05, .05, .1), # Probably tweak this so that the line between zero and positive is not sharp at .1
-            fl.Trapezoid('positive', .1, .2, .25, .3),
+            fl.Trapezoid('negative', -.3, -.25, -.2, -.08),
+            fl.Trapezoid('zero', -.1, -.05, .05, .1),
+            fl.Trapezoid('positive', .08, .2, .25, .3),
             fl.Ramp('very_positive', .25, 1)
         ]
     ),                      

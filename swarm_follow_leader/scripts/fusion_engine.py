@@ -1,4 +1,4 @@
-""" Code establishing the fuzzy logic controller for staying in formation """
+""" Establishes the FLC to get the weights to sum/merge formation and avoidance """
 
 import fuzzylite as fl
 
