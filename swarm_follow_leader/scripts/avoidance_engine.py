@@ -74,7 +74,7 @@ avoidance_engine.output_variables = [
         description='Translational velocity',
         enabled=True,
         minimum=-.5,
-        maximum=.7,
+        maximum=.6,
         lock_range=True,
         aggregation=fl.Maximum(),
         defuzzifier=fl.Centroid(), # Maybe play with the resolution of centroid?
@@ -82,8 +82,8 @@ avoidance_engine.output_variables = [
             fl.Ramp('reverse', 0, -.5),
             fl.Triangle('stop', -.05, 0, .05),
             fl.Triangle('slow', 0, .1, .2),
-            fl.Triangle('normal', .1, .5, .6), 
-            fl.Ramp('fast', .6, .7)
+            fl.Triangle('normal', .1, .3, .5), 
+            fl.Ramp('fast', .4, .6)
         ]
     ),
 ]

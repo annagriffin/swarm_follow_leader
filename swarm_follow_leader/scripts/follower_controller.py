@@ -55,7 +55,7 @@ class Follower:
 
         # TODO: Make more robust my taking an average of points around the directions instead of one lidar data point
         angles = [90, 270, 0] # left, right, and front lidar angles
-        self.laser_distances = [self.get_average_distance(theta, 2) for theta in angles]
+        self.laser_distances = [self.get_average_distance(theta, 7) for theta in angles]
         self.all_detected = [i for i, angle in enumerate(msg.ranges) if not (angle == float('inf'))]
         
     def process_leader_angle(self, msg):
@@ -160,8 +160,8 @@ class Follower:
                 # print('vel1:', v1, 'rot1:', r1, 'vel2:', v2, 'rot2:', r2)
                 v_final, r_final = self.fuzzy_fusion(v1, r1, v2, r2)
                 
-                m.linear.x = v_final
                 # m.linear.x = 0
+                m.linear.x = v_final
                 m.angular.z =  r_final
 
                 # Reset distance and angle variables so that old data doesn't persist

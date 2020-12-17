@@ -29,9 +29,9 @@ fusion_engine.input_variables = [
         maximum=5.0,
         lock_range=True,
         terms=[
-            fl.Ramp('very_small', .25, 0), 
-            fl.Trapezoid('small', .2, .4, .6, .8),
-            fl.Trapezoid('medium', .6, 2.5, 3, 3.5),
+            fl.Ramp('very_small', .05, 0), 
+            fl.Trapezoid('small', .04, .1, .25, .35),
+            fl.Trapezoid('medium', .3, 1, 2, 3.5),
             fl.Ramp('large', 3, 5)
         ]
     ),                      
@@ -48,9 +48,9 @@ fusion_engine.output_variables = [
         aggregation=fl.Maximum(),
         defuzzifier=fl.Centroid(),
         terms=[
-            fl.Spike('very_small', .01, .1),
-            fl.Spike('small', .25, .1),
-            fl.Spike('medium', .66, .1),
+            fl.Spike('very_small', .2, .1),
+            fl.Spike('small', .4, .1),
+            fl.Spike('medium', .7, .1),
             fl.Spike('large', 1, .1),
         ]
     ),
@@ -65,8 +65,8 @@ fusion_engine.output_variables = [
         defuzzifier=fl.Centroid(),
         terms=[
             fl.Spike('small', 0, .1),
-            fl.Spike('medium', .5, .1),
-            fl.Spike('large', .9, .1),
+            fl.Spike('medium', .3, .1),
+            fl.Spike('large', .7, .1),
         ]
     ),
 ]
