@@ -15,7 +15,7 @@ from geometry_msgs.msg import Twist, Vector3
 
 
 class AngleFinder(object):
-    """ The AngleFinder is a Python object that encompasses a ROS node 
+    """ The AngleFinder is a Python object that encompasses a ROS node
         that can process images from the camera and search for a leader robot within.
         The node will calculate the angle between the current robot and a leader
         robot if one is in view. """
@@ -35,37 +35,33 @@ class AngleFinder(object):
         self.pub = rospy.Publisher('angle_to_leader', Float32, queue_size=10)
         # self.pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
         self.K_matrix = None
-        self.tag_width = 0.4 # meters
+        self.tag_width = 0.4  # meters
         self.camera_width = None
         self.focal_length = None
         self.ref_dimension = 400
-
         cv2.namedWindow('video_window')
-
 
     def process_image(self, msg):
         """ Process image messages from ROS and stash them in an attribute
         called cv_image for subsequent processing """
         self.cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
         self.binary_image = cv2.inRange(
-        self.cv_image, (200, 200, 200), (255, 255, 255))
-
+            self.cv_image, (200, 200, 200), (255, 255, 255))
 
     def process_camera_info(self, msg):
         self.K_matrix = msg.K
         self.camera_width = msg.width
-        self.focal_length = self.get_focal_length(self.camera_width, self.h_field_of_view)
-
+        self.focal_length = self.get_focal_length(
+            self.camera_width, self.h_field_of_view)
 
     def get_focal_length(self, width, fov):
-        
+
         return (width / 2) / (math.tan(fov/2))
 
-    
     def get_distance_to_camera(self, corners):
 
         p_width = self.get_perceived_width(corners)
-        
+
         return (self.tag_width * self.focal_length) / p_width
 
     def get_perceived_width(self, corners):
@@ -73,13 +69,9 @@ class AngleFinder(object):
         x_vals = [i[0] for i in corners]
         return (max(x_vals) - min(x_vals))
 
-
     def get_angle(self, center_x, center_y):
 
-
         return ((center_x - float(self.camera_width / 2)) / self.camera_width) * (math.degrees(self.h_field_of_view))
-
-
 
     def order_points(self, pts):
         # initialzie a list of coordinates that will be ordered
@@ -115,15 +107,70 @@ class AngleFinder(object):
         M = cv2.getPerspectiveTransform(rect, dst)
 
         warped = cv2.warpPerspective(
-        image, M, (self.ref_dimension, self.ref_dimension))
+            image, M, (self.ref_dimension, self.ref_dimension))
 
         num, Rs, Ts, Ns = cv2.decomposeHomographyMat(M, self.K_matrix)
 
         Rs = Rs[0]
         a = math.atan2(Rs[1][0], Rs[0][0])
-        print(math.degrees(a))
+        # print(math.degrees(a))
         # return the warped image
         return warped
+
+    def draw_detected(self, contours):
+
+        # [-1 - 1 - 1 21]
+        # [-1 - 1 - 1 23]
+        # [-1 - 1 - 1 30]
+        # [-1 - 1 - 1 32]
+
+        max_contour = None
+        max_area = 0
+
+        for contour in contours:
+            
+            contour_area = cv2.contourArea(contour[0])
+
+            if max_contour is None or contour_area > max_area:
+                max_area = contour_area
+                max_contour = cv2.approxPolyDP(contour[0], 0.01 * cv2.arcLength(contour[0], closed=True), closed=True)
+
+                # contour_poly_curve = cv2.approxPolyDP(
+                #         contour, 0.01 * cv2.arcLength(contour, closed=True), closed=True)
+        cv2.drawContours(
+            self.cv_image, [max_contour], 0, (0, 0, 225), 1)
+
+        contour_poly_curve = max_contour
+        corners = np.reshape(
+            (np.float32(contour_poly_curve)), (4, 2))
+
+        # d = self.get_distance_to_camera(corners)
+        # width = self.get_perceived_width(corners)
+
+        for each in corners:
+            cv2.circle(self.cv_image,
+                        (each[0], each[1]), 4, (0, 0, 255), -1)
+
+        # compute the center of the contour
+        M = cv2.moments(contour_poly_curve)
+        cX = int(M["m10"] / M["m00"])
+        cY = int(M["m01"] / M["m00"])
+
+        # draw the contour and center of the shape on the image
+        cv2.circle(self.cv_image, (cX, cY), 2, (255, 255, 255), -1)
+
+        cv2.putText(self.cv_image, "center", (cX - 20, cY - 20),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
+        if not self.focal_length is None:
+            angle = self.get_angle(cX, cY)
+            self.pub.publish(angle)
+            # print(angle)
+
+        warped = self.four_point_transform(
+            self.cv_image, corners)
+
+        cv2.imshow("warped", warped)
 
     def run(self):
         """ The main run loop """
@@ -134,49 +181,25 @@ class AngleFinder(object):
                 grey = cv2.cvtColor(self.cv_image, cv2.COLOR_BGR2GRAY)
                 edged = cv2.Canny(grey, 30, 200)
                 _, frame_thresh = cv2.threshold(edged, 220, 255, 0)
-                contours, _ = cv2.findContours(
-                    frame_thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-                for contour in contours:
+                contours, h = cv2.findContours(
+                    frame_thresh, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+                merged = [(contours[i], h[0][i]) for i in range(0,len(contours))]
+                detected = []
+                for item in merged:
+                    contour = item[0]
+                    heirachy = item[1]
+
                     contour_area = cv2.contourArea(contour)
                     contour_poly_curve = cv2.approxPolyDP(
                         contour, 0.01 * cv2.arcLength(contour, closed=True), closed=True)
                     if 2000 < contour_area < 22600 and len(contour_poly_curve) == 4:
                         # Draw the selected Contour matching the criteria fixed
-                        cv2.drawContours(
-                            self.cv_image, [contour_poly_curve], 0, (0, 0, 225), 1)
+                        if(heirachy[0] == -1):
+                            detected.append(item)
+                            
 
-                        corners = np.reshape(
-                            (np.float32(contour_poly_curve)), (4, 2))
-
-                        # d = self.get_distance_to_camera(corners)
-                        # width = self.get_perceived_width(corners)
-
-                        for each in corners:
-                            cv2.circle(self.cv_image,
-                                       (each[0], each[1]), 4, (0, 0, 255), -1)
-
-                        # compute the center of the contour
-                        M = cv2.moments(contour_poly_curve)
-                        cX = int(M["m10"] / M["m00"])
-                        cY = int(M["m01"] / M["m00"])
-
-                        
-                        # draw the contour and center of the shape on the image
-                        cv2.circle(self.cv_image, (cX, cY), 2, (255, 255, 255), -1)
-                      
-
-                        cv2.putText(self.cv_image, "center", (cX - 20, cY - 20),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-
-                        if not self.focal_length is None:
-                            angle = self.get_angle(cX, cY)
-                            self.pub.publish(angle)
-                            # print(angle)
-
-                        warped = self.four_point_transform(
-                            self.cv_image, corners)
-
-                        cv2.imshow("warped", warped)
+                if len(detected) > 0:
+                    self.draw_detected(detected)
 
                 cv2.imshow('video_window', self.cv_image)
                 cv2.waitKey(5)

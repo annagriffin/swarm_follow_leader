@@ -50,6 +50,24 @@
       </inertial>
     </link>
 
+    <link name='border_link'>
+      <visual>
+        <geometry>
+          <box size="0.01 0.25 0.25"/>
+
+        </geometry>
+        <origin xyz="0.01 -0.1 0.4" rpy="${M_PI/2} 0 0"/>
+      </visual>
+    </link>
+
+    <joint name='border_joint' type='fixed'>
+      <parent link="base_footprint"/>
+      <child link="border_link"/>
+"
+      <origin xyz="0.00 ${0.235/2} 0.0250" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+    </joint>
+
     <link name='marker_link'>
       <visual>
         <geometry>
