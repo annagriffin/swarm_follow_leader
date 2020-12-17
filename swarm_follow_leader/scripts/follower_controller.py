@@ -28,7 +28,7 @@ class Follower:
         self.laser_distances = None
         self.offset_angle = None
         self.all_detected = None
-        self.desired_distance = 1 # Desired distance to keep between leader and follower
+        self.desired_distance = .8 # Desired distance to keep between leader and follower
 
         # Setup Fuzzy Logic Controller Inputs
         self.angle = formation_engine.input_variable('Angle')
@@ -99,6 +99,7 @@ class Follower:
             return None, None
 
         self.distance.value = self.desired_distance - actual_offset_distance
+        print('Distance value:', self.distance.value, 'actual distance:', actual_offset_distance)
 
         # Perform fuzzy inference
         formation_engine.process()
