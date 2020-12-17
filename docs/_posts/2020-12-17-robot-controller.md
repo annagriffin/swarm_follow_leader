@@ -6,9 +6,11 @@ title: Following the Leader
 
 ## Decentralized Follower Controller
 When we set out to create the leader follower system, we knew we wanted to make the swarm control scheme decentralized. This way, each robot in the swarm can independently process its environment and react accordingly without need for a central arbiter or “brain”. With a decentralized system, robots can be cheaply added and removed when necessary, and scaling the swarm out to n robots is just as easy as adding the necessary robots. In the context of our leader, to add another robot to the swarm would be as simple as spinning up a new ROS node for an additional robot controller.
- 
-Regarding the system architecture of the decentralized follower, we decided to do some research into the leader follower space and landed upon [this paper](https://ieeexplore.ieee.org/document/4058766) that we ended up loosely following. While the paper describes a centralized system that relays the leader’s position (x, y) to each follower, we use the AR tag system to determine where the leader is relative to the follower. 
- 
+
+Regarding the system architecture of the decentralized follower, we decided to do some research into the leader follower space and landed upon [this paper](https://ieeexplore.ieee.org/document/4058766) that we ended up loosely following. While the paper describes a centralized system that relays the leader’s position (x, y) to each follower, we use the AR tag system to determine where the leader is relative to the follower.
+
+
+
 ## Follower Controller
 The follower controller is built on a two layer, three fuzzy logic controller system as shown in the diagram below. We decided to use a fuzzy logic controller as opposed to more traditional PID controllers due to the uncertainty in the leader follower problem. A robot in formation must dynamically handle the uncertainty in the environment such that it doesn’t collide with external objects and teammates while still maintaining to follow its intended leader. Fuzzy logic is well suited to adapt to this problem as it uses fuzzy non-crip (meaning non-boolean) values and a more human approach to computing where an accurate mathematical model of the system is not necessary. Instead, a linguistic approach is used to process uncertain data using designed rules. Linguistic sets and membership functions determine how input data is processed and then fed into an inference engine backed by a fuzzy rule base. This way by only utilizing the inputs from sensors, an effective controller can be designed.
 
