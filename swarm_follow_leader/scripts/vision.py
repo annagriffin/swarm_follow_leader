@@ -52,7 +52,7 @@ class AngleFinder(object):
 
 
     def process_camera_info(self, msg):
-       
+        self.K_matrix = msg.K
         self.camera_width = msg.width
         self.focal_length = self.get_focal_length(self.camera_width, self.h_field_of_view)
 
@@ -116,6 +116,12 @@ class AngleFinder(object):
 
         warped = cv2.warpPerspective(
         image, M, (self.ref_dimension, self.ref_dimension))
+
+        num, Rs, Ts, Ns = cv2.decomposeHomographyMat(M, self.K_matrix)
+
+        Rs = Rs[0]
+        a = math.atan2(Rs[1][0], Rs[0][0])
+        print(math.degrees(a))
         # return the warped image
         return warped
 
@@ -165,12 +171,12 @@ class AngleFinder(object):
                         if not self.focal_length is None:
                             angle = self.get_angle(cX, cY)
                             self.pub.publish(angle)
-                            print(angle)
+                            # print(angle)
 
                         warped = self.four_point_transform(
                             self.cv_image, corners)
 
-                        # cv2.imshow("warped", warped)
+                        cv2.imshow("warped", warped)
 
                 cv2.imshow('video_window', self.cv_image)
                 cv2.waitKey(5)
