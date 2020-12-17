@@ -33,7 +33,6 @@ class AngleFinder(object):
         rospy.Subscriber(image_topic + 'camera_info',
                          CameraInfo, self.process_camera_info)
         self.pub = rospy.Publisher('angle_to_leader', Float32, queue_size=10)
-        # self.pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
         self.K_matrix = None
         self.tag_width = 0.4  # meters
         self.camera_width = None
@@ -109,52 +108,49 @@ class AngleFinder(object):
         warped = cv2.warpPerspective(
             image, M, (self.ref_dimension, self.ref_dimension))
 
-        num, Rs, Ts, Ns = cv2.decomposeHomographyMat(M, self.K_matrix)
-
-        Rs = Rs[0]
-        a = math.atan2(Rs[1][0], Rs[0][0])
-        # print(math.degrees(a))
-        # return the warped image
         return warped
 
-    def draw_detected(self, contours):
 
-        # [-1 - 1 - 1 21]
-        # [-1 - 1 - 1 23]
-        # [-1 - 1 - 1 30]
-        # [-1 - 1 - 1 32]
+    def find_leader(self, detected_contours):
 
-        max_contour = None
-        max_area = 0
+        contour_of_interest = max(detected_contours, key=lambda x : cv2.contourArea(x))
+        
+        contour_poly_curve = cv2.approxPolyDP(contour_of_interest, 0.01 * cv2.arcLength(contour_of_interest, closed=True), closed=True)
 
-        for contour in contours:
-            
-            contour_area = cv2.contourArea(contour[0])
-
-            if max_contour is None or contour_area > max_area:
-                max_area = contour_area
-                max_contour = cv2.approxPolyDP(contour[0], 0.01 * cv2.arcLength(contour[0], closed=True), closed=True)
-
-                # contour_poly_curve = cv2.approxPolyDP(
-                #         contour, 0.01 * cv2.arcLength(contour, closed=True), closed=True)
-        cv2.drawContours(
-            self.cv_image, [max_contour], 0, (0, 0, 225), 1)
-
-        contour_poly_curve = max_contour
         corners = np.reshape(
             (np.float32(contour_poly_curve)), (4, 2))
 
-        # d = self.get_distance_to_camera(corners)
-        # width = self.get_perceived_width(corners)
-
-        for each in corners:
-            cv2.circle(self.cv_image,
-                        (each[0], each[1]), 4, (0, 0, 255), -1)
 
         # compute the center of the contour
         M = cv2.moments(contour_poly_curve)
         cX = int(M["m10"] / M["m00"])
         cY = int(M["m01"] / M["m00"])
+
+
+        self.draw(contour_of_interest, contour_poly_curve, corners, cX, cY)
+
+
+        if not self.focal_length is None:
+            angle = self.get_angle(cX, cY)
+            self.pub.publish(angle)
+
+        warped = self.four_point_transform(
+            self.cv_image, corners)
+
+        cv2.imshow("warped", warped)
+
+
+
+
+    def draw(self, contour, curve, corners, cX, cY):
+
+        cv2.drawContours(
+            self.cv_image, [curve], 0, (0, 0, 225), 1)
+
+        for each in corners:
+            cv2.circle(self.cv_image,
+                        (each[0], each[1]), 4, (0, 0, 255), -1)
+
 
         # draw the contour and center of the shape on the image
         cv2.circle(self.cv_image, (cX, cY), 2, (255, 255, 255), -1)
@@ -162,16 +158,7 @@ class AngleFinder(object):
         cv2.putText(self.cv_image, "center", (cX - 20, cY - 20),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
-        if not self.focal_length is None:
-            angle = self.get_angle(cX, cY)
-            self.pub.publish(angle)
-            # print(angle)
-
-        warped = self.four_point_transform(
-            self.cv_image, corners)
-
-        cv2.imshow("warped", warped)
-
+        
     def run(self):
         """ The main run loop """
         r = rospy.Rate(5)
@@ -195,11 +182,12 @@ class AngleFinder(object):
                     if 2000 < contour_area < 22600 and len(contour_poly_curve) == 4:
                         # Draw the selected Contour matching the criteria fixed
                         if(heirachy[0] == -1):
-                            detected.append(item)
+                            detected.append(contour)
+                            # detected.append(item)
                             
 
                 if len(detected) > 0:
-                    self.draw_detected(detected)
+                    self.find_leader(detected)
 
                 cv2.imshow('video_window', self.cv_image)
                 cv2.waitKey(5)
