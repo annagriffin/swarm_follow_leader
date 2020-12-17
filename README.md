@@ -81,8 +81,6 @@ where v and ω are the final velocity and angular velocity, v_f and ω_f are the
 
 ![](images/fusion_rules.png)
 
-### System Architecture
-Within our system, there are two different roles the robot takes on, they are either a leader or a follower. The leaders are controlled though a teleop keyboard control. The followers have cameras and when they have detected a leader's tag, they used tracking to determine how to move in order to stay in pursuit. The main piece of information that the followers use is the angle between them and the detected leader. 
 
 
 
