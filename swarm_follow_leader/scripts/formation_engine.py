@@ -7,159 +7,158 @@ formation_engine = fl.Engine(
     description=''
 )
 
-# formation_engine.input_variables = [
-#     fl.InputVariable(
-#         name='Angle',
-#         description='',
-#         enabled=True,
-#         minimum=-40,
-#         maximum=40,
-#         lock_range=True,
-#         terms=[
-#             fl.Ramp('very_negative', -20, -35), 
-#             fl.Trapazoid('negative', -25, -20, -5, -.5),
-#             fl.Trapazoid('zero', -5, -2.5, 2.5, 5),
-#             fl.Trapazoid('positive', .5, 5, 20, 25),
-#             fl.Ramp('very_positive', 20, 35)
-#         ]
-#     ),
-#     fl.InputVariable(
-#         name='Distance',
-#         description='',
-#         enabled=True,
-#         minimum=-5.0,
-#         maximum=5.0,
-#         lock_range=True,
-#         terms=[
-#             # Probably need tweak these variables
-#             fl.Ramp('very_negative', -.3, -1), 
-#             fl.Trapazoid('negative', -.5, -.3, -.25, -.1),
-#             fl.Trapazoid('zero', -.1, -.05, .05, .1),
-#             fl.Trapazoid('positive', .1, .25, .3, .5),
-#             fl.Ramp('very_positive', .3, 1)
-#         ]
-#     ),                      
-# ]
+formation_engine.input_variables = [
+    fl.InputVariable(
+        name='Angle',
+        description='',
+        enabled=True,
+        minimum=-40,
+        maximum=40,
+        lock_range=True,
+        terms=[
+            fl.Ramp('very_negative', -20, -35), 
+            fl.Trapezoid('negative', -25, -20, -10, -5),
+            fl.Trapezoid('zero', -10, -2.5, 2.5, 10),
+            fl.Trapezoid('positive', 5, 10, 20, 25),
+            fl.Ramp('very_positive', 20, 35)
+        ]
+    ),
+    fl.InputVariable(
+        name='Distance',
+        description='',
+        enabled=True,
+        minimum=-5.0,
+        maximum=5.0,
+        lock_range=True,
+        terms=[
+            # Probably need tweak these variables
+            fl.Ramp('very_negative', -.25, -1), 
+            fl.Trapezoid('negative', -.3, -.25, -.2, -.1),
+            fl.Trapezoid('zero', -.1, -.05, .05, .1),
+            fl.Trapezoid('positive', .1, .2, .25, .3),
+            fl.Ramp('very_positive', .25, 1)
+        ]
+    ),                      
+]
 
-# formation_engine.output_variables = [
-#     fl.OutputVariable(
-#         name='Rotation',
-#         description='Rotational/angular velocity',
-#         enabled=True,
-#         minimum=-3,
-#         maximum=3,
-#         lock_range=True,
-#         aggregation=fl.Maximum(),
-#         defuzzifier=fl.Centroid(),
-#         terms=[
-#             fl.Ramp('very_right', -1, -3),
-#             fl.Triangle('right', -3, -1, 0),
-#             fl.Triangle('straight_ahead', -1, 0, 1),
-#             fl.Triangle('left', 0, 1, 3),
-#             fl.Ramp('very_left', 1, 3),
-#         ]
-#     ),
-#     fl.OutputVariable(
-#         name='Velocity',
-#         description='Translational velocity',
-#         enabled=True,
-#         minimum=-.5,
-#         maximum=1,
-#         lock_range=True,
-#         aggregation=fl.Maximum(),
-#         defuzzifier=fl.Centroid(),
-#         terms=[
-#             fl.Ramp('reverse', 0, -.5),
-#             fl.Triangle('slow', -.05, .3, .6),
-#             fl.Triangle('normal', .3, .6, 1), 
-#             fl.Ramp('fast', .6, 1)
-#         ]
-#     ),
-# ]
+formation_engine.output_variables = [
+    fl.OutputVariable(
+        name='Rotation',
+        description='Rotational/angular velocity',
+        enabled=True,
+        minimum=-1.5,
+        maximum=1.5,
+        lock_range=True,
+        aggregation=fl.Maximum(),
+        defuzzifier=fl.Centroid(),
+        terms=[
+            fl.Ramp('very_right', -.75, -1.5),
+            fl.Triangle('right', -1.5, -.75, 0),
+            fl.Triangle('straight_ahead', -.1, 0, .1),
+            fl.Triangle('left', 0, .75, 1.5),
+            fl.Ramp('very_left', .75, 1.5),
+        ]
+    ),
+    fl.OutputVariable(
+        name='Velocity',
+        description='Translational velocity',
+        enabled=True,
+        minimum=-.5,
+        maximum=.7,
+        lock_range=True,
+        aggregation=fl.Maximum(),
+        defuzzifier=fl.Centroid(),
+        terms=[
+            fl.Ramp('reverse', 0, -.5),
+            fl.Triangle('stop', -.05, 0, .05),
+            fl.Triangle('slow', 0, .1, .2),
+            fl.Triangle('normal', .1, .5, .6), 
+            fl.Ramp('fast', .6, .7)
+        ]
+    ),
+]
 
-# formation_engine.rule_blocks = [
-#     fl.RuleBlock(
-#         name="mamdani",
-#         description="",
-#         enabled=True,
-#         conjunction=fl.Minimum(),
-#         disjunction=fl.Maximum(),
-#         implication=fl.Minimum(),
-#         activation=fl.General(),
-#         rules=[
-#             # Left laser near section
-#             fl.Rule.create("if Left_Laser is near and Right_Laser is near and Front_Laser is near \
-#                             then Rotation is very_right and Velocity is reverse", formation_engine),
-#             fl.Rule.create("if Left_Laser is near and Right_Laser is near and Front_Laser is medium \
-#                             then Rotation is straight_ahead and Velocity is normal", formation_engine),
-#             fl.Rule.create("if Left_Laser is near and Right_Laser is near and Front_Laser is far \
-#                             then Rotation is straight_ahead and Velocity is fast", formation_engine),
-#             fl.Rule.create("if Left_Laser is near and Right_Laser is medium and Front_Laser is near \
-#                             then Rotation is very_right and Velocity is reverse", formation_engine),
-#             fl.Rule.create("if Left_Laser is near and Right_Laser is medium and Front_Laser is medium \
-#                             then Rotation is right and Velocity is slow", formation_engine),
-#             fl.Rule.create("if Left_Laser is near and Right_Laser is medium and Front_Laser is far \
-#                             then Rotation is very_right and Velocity is normal", formation_engine),
-#             fl.Rule.create("if Left_Laser is near and Right_Laser is far and Front_Laser is near \
-#                             then Rotation is very_right and Velocity is reverse", formation_engine),
-#             fl.Rule.create("if Left_Laser is near and Right_Laser is far and Front_Laser is medium \
-#                             then Rotation is very_right and Velocity is slow", formation_engine),
-#             fl.Rule.create("if Left_Laser is near and Right_Laser is far and Front_Laser is far \
-#                             then Rotation is very_right and Velocity is normal", formation_engine),
-#             # Left laser medium
-#             fl.Rule.create("if Left_Laser is medium and Right_Laser is near and Front_Laser is near \
-#                             then Rotation is very_left and Velocity is reverse", formation_engine),
-#             fl.Rule.create("if Left_Laser is medium and Right_Laser is near and Front_Laser is medium \
-#                             then Rotation is very_left and Velocity is slow", formation_engine),
-#             fl.Rule.create("if Left_Laser is medium and Right_Laser is near and Front_Laser is far \
-#                             then Rotation is very_left and Velocity is slow", formation_engine),
-#             fl.Rule.create("if Left_Laser is medium and Right_Laser is medium and Front_Laser is near \
-#                             then Rotation is very_right and Velocity is reverse", formation_engine),
-#             fl.Rule.create("if Left_Laser is medium and Right_Laser is medium and Front_Laser is medium \
-#                             then Rotation is right and Velocity is normal", formation_engine),
-#             fl.Rule.create("if Left_Laser is medium and Right_Laser is medium and Front_Laser is far \
-#                             then Rotation is very_right and Velocity is normal", formation_engine),
-#             fl.Rule.create("if Left_Laser is medium and Right_Laser is far and Front_Laser is near \
-#                             then Rotation is very_right and Velocity is reverse", formation_engine),
-#             fl.Rule.create("if Left_Laser is medium and Right_Laser is far and Front_Laser is medium \
-#                             then Rotation is very_right and Velocity is slow", formation_engine),
-#             fl.Rule.create("if Left_Laser is medium and Right_Laser is far and Front_Laser is far \
-#                             then Rotation is very_right and Velocity is normal", formation_engine),
-#             # Left laser far
-#             fl.Rule.create("if Left_Laser is far and Right_Laser is near and Front_Laser is near \
-#                             then Rotation is very_left and Velocity is reverse", formation_engine),
-#             fl.Rule.create("if Left_Laser is far and Right_Laser is near and Front_Laser is medium \
-#                             then Rotation is very_left and Velocity is slow", formation_engine),
-#             fl.Rule.create("if Left_Laser is far and Right_Laser is near and Front_Laser is far \
-#                             then Rotation is very_left and Velocity is normal", formation_engine),
-#             fl.Rule.create("if Left_Laser is far and Right_Laser is medium and Front_Laser is near \
-#                             then Rotation is very_left and Velocity is reverse", formation_engine),
-#             fl.Rule.create("if Left_Laser is far and Right_Laser is medium and Front_Laser is medium \
-#                             then Rotation is left and Velocity is normal", formation_engine),
-#             fl.Rule.create("if Left_Laser is far and Right_Laser is medium and Front_Laser is far \
-#                             then Rotation is left and Velocity is normal", formation_engine),
-#             fl.Rule.create("if Left_Laser is far and Right_Laser is far and Front_Laser is near \
-#                             then Rotation is very_right and Velocity is reverse", formation_engine),
-#             fl.Rule.create("if Left_Laser is far and Right_Laser is far and Front_Laser is medium \
-#                             then Rotation is right and Velocity is normal", formation_engine),
-#             fl.Rule.create("if Left_Laser is far and Right_Laser is far and Front_Laser is far \
-#                             then Rotation is straight_ahead and Velocity is normal", formation_engine),                                                                                                                                                                                                                                                                                                                                                                                             
-#         ]
-#     )    
-# ]
+formation_engine.rule_blocks = [
+    fl.RuleBlock(
+        name="mamdani",
+        description="",
+        enabled=True,
+        conjunction=fl.Minimum(),
+        disjunction=fl.Maximum(),
+        implication=fl.Minimum(),
+        activation=fl.General(),
+        rules=[
+            # Angle very negative
+            fl.Rule.create("if Angle is very_negative and Distance is very_negative \
+                            then Rotation is very_left and Velocity is fast", formation_engine),
+            fl.Rule.create("if Angle is very_negative and Distance is negative \
+                            then Rotation is very_left and Velocity is normal", formation_engine),
+            fl.Rule.create("if Angle is very_negative and Distance is zero \
+                            then Rotation is very_left and Velocity is stop", formation_engine),
+            fl.Rule.create("if Angle is very_negative and Distance is positive \
+                            then Rotation is very_left and Velocity is slow", formation_engine),
+            fl.Rule.create("if Angle is very_negative and Distance is very_positive \
+                            then Rotation is very_left and Velocity is stop", formation_engine),                                                                                    
+            # Angle negative
+            fl.Rule.create("if Angle is negative and Distance is very_negative \
+                            then Rotation is left and Velocity is fast", formation_engine),
+            fl.Rule.create("if Angle is negative and Distance is negative \
+                            then Rotation is left and Velocity is normal", formation_engine),
+            fl.Rule.create("if Angle is negative and Distance is zero \
+                            then Rotation is left and Velocity is stop", formation_engine),
+            fl.Rule.create("if Angle is negative and Distance is positive \
+                            then Rotation is left and Velocity is slow", formation_engine),
+            fl.Rule.create("if Angle is negative and Distance is very_positive \
+                            then Rotation is left and Velocity is stop", formation_engine),    
+            # Angle zero
+            fl.Rule.create("if Angle is zero and Distance is very_negative \
+                            then Rotation is straight_ahead and Velocity is fast", formation_engine),
+            fl.Rule.create("if Angle is zero and Distance is negative \
+                            then Rotation is straight_ahead and Velocity is normal", formation_engine),
+            fl.Rule.create("if Angle is zero and Distance is zero \
+                            then Rotation is straight_ahead and Velocity is stop", formation_engine),
+            fl.Rule.create("if Angle is zero and Distance is positive \
+                            then Rotation is straight_ahead and Velocity is slow", formation_engine),
+            fl.Rule.create("if Angle is zero and Distance is very_positive \
+                            then Rotation is straight_ahead and Velocity is stop", formation_engine),  
+            # Angle positive
+            fl.Rule.create("if Angle is positive and Distance is very_negative \
+                            then Rotation is right and Velocity is fast", formation_engine),
+            fl.Rule.create("if Angle is positive and Distance is negative \
+                            then Rotation is right and Velocity is normal", formation_engine),
+            fl.Rule.create("if Angle is positive and Distance is zero \
+                            then Rotation is right and Velocity is stop", formation_engine),
+            fl.Rule.create("if Angle is positive and Distance is positive \
+                            then Rotation is right and Velocity is slow", formation_engine),
+            fl.Rule.create("if Angle is positive and Distance is very_positive \
+                            then Rotation is right and Velocity is stop", formation_engine),
+            # Angle very positive
+            fl.Rule.create("if Angle is very_positive and Distance is very_negative \
+                            then Rotation is very_right and Velocity is fast", formation_engine),
+            fl.Rule.create("if Angle is very_positive and Distance is negative \
+                            then Rotation is very_right and Velocity is normal", formation_engine),
+            fl.Rule.create("if Angle is very_positive and Distance is zero \
+                            then Rotation is very_right and Velocity is stop", formation_engine),
+            fl.Rule.create("if Angle is very_positive and Distance is positive \
+                            then Rotation is very_right and Velocity is slow", formation_engine),
+            fl.Rule.create("if Angle is very_positive and Distance is very_positive \
+                            then Rotation is very_right and Velocity is stop", formation_engine),                                                                                                                                                                                                                                                                                                                                                                                              
+        ]
+    )    
+]
 
-# if __name__ == "__main__":
-#     # Testing out the engine
-#     angle = formation_engine.input_variable('Angle')
-#     distance = formation_engine.input_variable('Distance')
+if __name__ == "__main__":
+    # Testing out the engine
+    angle = formation_engine.input_variable('Angle')
+    distance = formation_engine.input_variable('Distance')
 
-#     rotation = formation_engine.output_variable('Rotation')
-#     velocity = formation_engine.output_variable('Velocity')
+    rotation = formation_engine.output_variable('Rotation')
+    velocity = formation_engine.output_variable('Velocity')
 
-#     angle.value = 2.5
-#     distance.value = 2.5
+    angle.value = 25
+    distance.value = .75
 
-#     formation_engine.process()
+    formation_engine.process()
 
-#     print('Rotation:', rotation.value)
-#     print('Velocity:', velocity.value)
+    print('Rotation:', rotation.value)
+    print('Velocity:', velocity.value)

@@ -55,18 +55,18 @@ avoidance_engine.output_variables = [
         name='Rotation',
         description='Rotational/angular velocity',
         enabled=True,
-        minimum=-3,
-        maximum=3,
+        minimum=-1.5,
+        maximum=1.5,
         lock_range=True,
         aggregation=fl.Maximum(),
         defuzzifier=fl.Centroid(), # Maybe play with the resolution of centroid?
         terms=[
             # Angular velocity (used be to degree of rotation mapped from -90 to 90 but /cmd_vel expects angular velocity)
-            fl.Ramp('very_right', -1, -3),
-            fl.Triangle('right', -3, -1, 0),
-            fl.Triangle('straight_ahead', -1, 0, 1),
-            fl.Triangle('left', 0, 1, 3),
-            fl.Ramp('very_left', 1, 3),
+            fl.Ramp('very_right', -.75, -1.5),
+            fl.Triangle('right', -1.5, -.75, 0),
+            fl.Triangle('straight_ahead', -.1, 0, .1),
+            fl.Triangle('left', 0, .75, 1.5),
+            fl.Ramp('very_left', .75, 1.5),
         ]
     ),
     fl.OutputVariable(
@@ -74,15 +74,16 @@ avoidance_engine.output_variables = [
         description='Translational velocity',
         enabled=True,
         minimum=-.5,
-        maximum=1,
+        maximum=.7,
         lock_range=True,
         aggregation=fl.Maximum(),
         defuzzifier=fl.Centroid(), # Maybe play with the resolution of centroid?
         terms=[
             fl.Ramp('reverse', 0, -.5),
-            fl.Triangle('slow', -.05, .3, .6),
-            fl.Triangle('normal', .3, .6, 1), 
-            fl.Ramp('fast', .6, 1)
+            fl.Triangle('stop', -.05, 0, .05),
+            fl.Triangle('slow', 0, .1, .2),
+            fl.Triangle('normal', .1, .5, .6), 
+            fl.Ramp('fast', .6, .7)
         ]
     ),
 ]
