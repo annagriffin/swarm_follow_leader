@@ -74,7 +74,7 @@ The Collision Avoidance Controller determines the optimal translational velocity
 
 The higher level Command Fusion Controller takes a position measurement (the absolute value of the distance input from the formation controller, this describes how well the robot is in position within the formation) and minimum laser measurement (the closest detected obstacle, this describes how demanding collision avoidance is currently) to output weights for Formation Controller outputs and Collision Avoidance Controller outputs. Using the given input, the Command Fusion Controller determines how important each controller is given the robot’s sensor at the given time with a heavier preference to keeping the robot in formation unless an obstacle is very close to the robot and collision may be likely. The weights are used in a weighted sum of the outputs from the Formation Controller and Collision Avoidance Controller such that a final velocity and angular velocity is calculated. This equation is defined as follows:
 
-v = v_f * W_f + v_c * W_c
+v = v_f * W_f + v_c * W_c<br>
 ω = ω_f * W_f + ω_C * W_c
  
 where v and ω are the final velocity and angular velocity, v_f and ω_f are the velocity and angular velocity from the Formation Controller, v_c and ω_c are the velocity and angular velocity from the Collision Avoidance Controller, and W_f and W_c are the calculated.
