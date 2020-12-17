@@ -9,8 +9,11 @@ Following a leader is common behavior in robots. It requires a level of autonomy
 
 ## Demo
 
+### Follow the leader
+![](images/demo_gifs/swarm_follow.gif)
 
-
+### Bridge of Doom
+![](images/demo_gifs/birdge_of_doom.gif)
 
 ## Implementation
 
