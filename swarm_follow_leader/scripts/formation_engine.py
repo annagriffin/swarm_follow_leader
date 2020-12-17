@@ -34,7 +34,7 @@ formation_engine.input_variables = [
             # Probably need tweak these variables
             fl.Ramp('very_negative', -.25, -1), 
             fl.Trapezoid('negative', -.3, -.25, -.2, -.1),
-            fl.Trapezoid('zero', -.1, -.05, .05, .1),
+            fl.Trapezoid('zero', -.1, -.05, .05, .1), # Probably tweak this so that the line between zero and positive is not sharp at .1
             fl.Trapezoid('positive', .1, .2, .25, .3),
             fl.Ramp('very_positive', .25, 1)
         ]

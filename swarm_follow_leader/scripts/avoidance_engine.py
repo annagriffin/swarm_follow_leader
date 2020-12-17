@@ -17,8 +17,8 @@ avoidance_engine.input_variables = [
         lock_range=True,
         terms=[
             # Ramp is defined so that start is the bottom of ramp and end is the top
-            fl.Ramp('near', 2.5, 0), 
-            fl.Triangle('medium', 1.25, 2.5, 3.75),
+            fl.Ramp('near', .75, 0), 
+            fl.Triangle('medium', .5, 2.5, 3.75),
             fl.Ramp('far', 2.5, 5)
         ]
     ),
@@ -30,8 +30,8 @@ avoidance_engine.input_variables = [
         maximum=5.0,
         lock_range=True,
         terms=[
-            fl.Ramp('near', 2.5, 0),
-            fl.Triangle('medium', 1.25, 2.5, 3.75),
+            fl.Ramp('near', .75, 0), 
+            fl.Triangle('medium', .5, 2.5, 3.75),
             fl.Ramp('far', 2.5, 5)
         ]
     ),
@@ -43,8 +43,8 @@ avoidance_engine.input_variables = [
         maximum=5.0,
         lock_range=True,
         terms=[
-            fl.Ramp('near', 2.5, 0),
-            fl.Triangle('medium', 1.25, 2.5, 3.75),
+            fl.Ramp('near', .75, 0), 
+            fl.Triangle('medium', .5, 2.5, 3.75),
             fl.Ramp('far', 2.5, 5)
         ]
     ),                        

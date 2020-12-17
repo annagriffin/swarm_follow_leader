@@ -10,6 +10,7 @@ from std_msgs.msg import Float32
 import numpy as np
 from avoidance_engine import avoidance_engine
 from formation_engine import formation_engine
+from fusion_engine import fusion_engine
 import sys
 
 class Follower:
@@ -37,12 +38,16 @@ class Follower:
         self.left_laser = avoidance_engine.input_variable('Left_Laser')
         self.right_laser = avoidance_engine.input_variable('Right_Laser')
         self.front_laser = avoidance_engine.input_variable('Front_Laser')
+        self.position_measure = fusion_engine.input_variable('Position_Measure')
+        self.min_laser = fusion_engine.input_variable('Min_Laser')
 
         # Setup Fuzzy Logic Controller Outputs
         self.vel_formation = formation_engine.output_variable('Velocity')
         self.rot_formation = formation_engine.output_variable('Rotation')
         self.vel_avoidance = avoidance_engine.output_variable('Velocity')
         self.rot_avoidance = avoidance_engine.output_variable('Rotation')
+        self.formation_weight = fusion_engine.output_variable('Formation_Weight')
+        self.collision_weight = fusion_engine.output_variable('Collision_Weight')
 
     def process_scan(self, msg):
         """ Process lidar scan data and extracts distance measurements from left, right and front """
@@ -78,7 +83,6 @@ class Follower:
         avg, count = 0, 0
         for i in range(-n, n+1):
             neighbor = self.all_lidar_data[(angle + i) % 360]
-            # l.append(neighbor)
             if neighbor != float('inf'):
                 avg += neighbor
                 count += 1
@@ -128,8 +132,19 @@ class Follower:
 
     def fuzzy_fusion(self, v1, r1, v2, r2):
         """ Fuzzy logic controller that combines formation and collision avoidance """
-        # TODO: this setup is temporary to test avoidance engine. Add inputs from formation controller too
-        return v1, r1
+        self.position_measure.value = abs(self.distance.value)
+        self.min_laser.value = min(self.left_laser.value, self.right_laser.value, self.front_laser.value)
+
+        # Perform fuzzy inference
+        fusion_engine.process()
+
+        f_W = self.formation_weight.value
+        c_W = self.collision_weight.value
+
+        v_final = v1 * f_W + v2 * c_W
+        r_final = r1 * f_W + r2 * c_W
+
+        return v_final, r_final
 
     def run(self):
         r = rospy.Rate(5)
@@ -158,17 +173,6 @@ class Follower:
                 m.angular.z =  0
 
             self.vel_pub.publish(m)
-      
-            # if self.all_lidar_data and self.offset_angle:
-            #     print(self.all_lidar_data)
-            #     print(self.all_detected)
-            #     print("Lidar distance at 0 degrees:", self.all_lidar_data[0])
-            #     print(f'Offset Lidar distance at {int(self.offset_angle)} degrees, or {(360-int(self.offset_angle))%360} lidar degrees:', self.all_lidar_data[(360-int(self.offset_angle))%360])
-            # else:
-            #     # Reset data, probably have to move it cause not working
-            #     self.all_lidar_data = None
-            #     self.laser_distances = None
-            #     self.offset_angle = None
 
             r.sleep()
 
