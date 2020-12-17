@@ -10,11 +10,12 @@ from std_msgs.msg import Float32
 import numpy as np
 from avoidance_engine import avoidance_engine
 from formation_engine import formation_engine
+import sys
 
 class Follower:
     """" ROS node for follower robot controller """
     def __init__(self, robot_ns):
-        rospy.init_node('Follower')
+        rospy.init_node(f'{robot_ns}_follower')
 
         # Setup publishers and subscribers
         self.vel_pub = rospy.Publisher(f'/{robot_ns}/cmd_vel', Twist, queue_size=10)
@@ -28,7 +29,7 @@ class Follower:
         self.laser_distances = None
         self.offset_angle = None
         self.all_detected = None
-        self.desired_distance = .8 # Desired distance to keep between leader and follower
+        self.desired_distance = .75 # Desired distance to keep between leader and follower
 
         # Setup Fuzzy Logic Controller Inputs
         self.angle = formation_engine.input_variable('Angle')
@@ -174,5 +175,5 @@ class Follower:
         print("Shutting down")
 
 if __name__ == '__main__':
-    node = Follower('robot1')
+    node = Follower(sys.argv[1])
     node.run()

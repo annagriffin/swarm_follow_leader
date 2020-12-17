@@ -12,7 +12,7 @@ import numpy as np
 import math
 from std_msgs.msg import Float32
 from geometry_msgs.msg import Twist, Vector3
-
+import sys
 
 class AngleFinder(object):
     """ The AngleFinder is a Python object that encompasses a ROS node 
@@ -22,7 +22,7 @@ class AngleFinder(object):
 
     def __init__(self, robot_ns):
         """ Initialize the angle finder """
-        rospy.init_node('angle_finder')
+        rospy.init_node(f'{robot_ns}_angle_finder')
         self.cv_image = None                        # the latest image from the camera
         # used to convert ROS messages to OpenCV
         self.bridge = CvBridge()
@@ -39,8 +39,9 @@ class AngleFinder(object):
         self.camera_width = None
         self.focal_length = None
         self.ref_dimension = 400
+        self.robot_ns = robot_ns
 
-        cv2.namedWindow('video_window')
+        cv2.namedWindow(f'{self.robot_ns} view window')
 
 
     def process_image(self, msg):
@@ -172,12 +173,12 @@ class AngleFinder(object):
 
                         # cv2.imshow("warped", warped)
 
-                cv2.imshow('video_window', self.cv_image)
+                cv2.imshow(f'{self.robot_ns} view window', self.cv_image)
                 cv2.waitKey(5)
 
             r.sleep()
 
 
 if __name__ == '__main__':
-    node = AngleFinder("robot1")
+    node = AngleFinder(sys.argv[1])
     node.run()
