@@ -15,7 +15,7 @@ feature-img: "assets/img/sample_feature_img.png"
 
 ## Big Swarm
 
-![big swarm](assets/img/demo_gifs/swarm_follow.gif)
+![big swarm](assets/img/demo_gifs/big_swarm.gif)
 
 
 ## Collision Avoidance 1
