@@ -12,7 +12,7 @@ import numpy as np
 import math
 from std_msgs.msg import Float32
 from geometry_msgs.msg import Twist, Vector3
-
+import sys
 
 class AngleFinder(object):
     """ The AngleFinder is a Python object that encompasses a ROS node
@@ -20,24 +20,25 @@ class AngleFinder(object):
         The node will calculate the angle between the current robot and a leader
         robot if one is in view. """
 
-    def __init__(self, image_topic):
+    def __init__(self, robot_ns):
         """ Initialize the angle finder """
-        rospy.init_node('angle_finder')
+        rospy.init_node(f'{robot_ns}_angle_finder')
         self.cv_image = None                        # the latest image from the camera
         # used to convert ROS messages to OpenCV
         self.bridge = CvBridge()
 
         self.h_field_of_view = 1.3962634  # radians
 
-        rospy.Subscriber(image_topic + 'image_raw', Image, self.process_image)
-        rospy.Subscriber(image_topic + 'camera_info',
+        rospy.Subscriber(f'/{robot_ns}/camera/image_raw', Image, self.process_image)
+        rospy.Subscriber(f'/{robot_ns}/camera/camera_info',
                          CameraInfo, self.process_camera_info)
-        self.pub = rospy.Publisher('angle_to_leader', Float32, queue_size=10)
+        self.pub = rospy.Publisher(f'/{robot_ns}/angle_to_leader', Float32, queue_size=10)
         self.tag_width = 0.4  # meters
         self.camera_width = None
         self.focal_length = None
         self.ref_dimension = 400
-        cv2.namedWindow('video_window')
+        self.robot_ns = robot_ns
+        cv2.namedWindow(f'{self.robot_ns} view window')
 
 
     def process_image(self, msg):
@@ -223,7 +224,7 @@ class AngleFinder(object):
         warped = self.four_point_transform(
             self.cv_image, corners)
 
-        cv2.imshow("warped", warped)
+        # cv2.imshow("warped", warped)
 
 
     def draw(self, contour, curve, corners, cX, cY):
@@ -292,12 +293,12 @@ class AngleFinder(object):
                 if len(detected) > 0:
                     self.find_leader(detected)
 
-                cv2.imshow('video_window', self.cv_image)
+                cv2.imshow(f'{self.robot_ns} view window', self.cv_image)
                 cv2.waitKey(5)
 
             r.sleep()
 
 
 if __name__ == '__main__':
-    node = AngleFinder("/robot1/camera/")
+    node = AngleFinder(sys.argv[1])
     node.run()
