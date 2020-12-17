@@ -1,4 +1,4 @@
-""" Code establishing the fuzzy engine """
+""" Establishes the fuzzy logic controller for collision avoidance """
 
 import fuzzylite as fl
 
@@ -17,8 +17,8 @@ avoidance_engine.input_variables = [
         lock_range=True,
         terms=[
             # Ramp is defined so that start is the bottom of ramp and end is the top
-            fl.Ramp('near', 2.5, 0), 
-            fl.Triangle('medium', 1.25, 2.5, 3.75),
+            fl.Ramp('near', .75, 0), 
+            fl.Triangle('medium', .5, 2.5, 3.75),
             fl.Ramp('far', 2.5, 5)
         ]
     ),
@@ -30,8 +30,8 @@ avoidance_engine.input_variables = [
         maximum=5.0,
         lock_range=True,
         terms=[
-            fl.Ramp('near', 2.5, 0),
-            fl.Triangle('medium', 1.25, 2.5, 3.75),
+            fl.Ramp('near', .75, 0), 
+            fl.Triangle('medium', .5, 2.5, 3.75),
             fl.Ramp('far', 2.5, 5)
         ]
     ),
@@ -43,8 +43,8 @@ avoidance_engine.input_variables = [
         maximum=5.0,
         lock_range=True,
         terms=[
-            fl.Ramp('near', 2.5, 0),
-            fl.Triangle('medium', 1.25, 2.5, 3.75),
+            fl.Ramp('near', .75, 0), 
+            fl.Triangle('medium', .5, 2.5, 3.75),
             fl.Ramp('far', 2.5, 5)
         ]
     ),                        
@@ -53,36 +53,37 @@ avoidance_engine.input_variables = [
 avoidance_engine.output_variables = [
     fl.OutputVariable(
         name='Rotation',
-        description='',
+        description='Rotational/angular velocity',
         enabled=True,
-        minimum=-3,
-        maximum=3,
+        minimum=-1.5,
+        maximum=1.5,
         lock_range=True,
         aggregation=fl.Maximum(),
-        defuzzifier=fl.Centroid(), # Maybe play with the resolution of centroid?
+        defuzzifier=fl.Centroid(),
         terms=[
             # Angular velocity (used be to degree of rotation mapped from -90 to 90 but /cmd_vel expects angular velocity)
-            fl.Ramp('very_left', 1, 3),
-            fl.Triangle('left', 0, 1, 3),
-            fl.Triangle('straight_ahead', -1, 0, 1),
-            fl.Triangle('right', -3, -1, 0),
-            fl.Ramp('very_right', -1, -3)
+            fl.Ramp('very_right', -.75, -1.5),
+            fl.Triangle('right', -1.5, -.75, 0),
+            fl.Triangle('straight_ahead', -.1, 0, .1),
+            fl.Triangle('left', 0, .75, 1.5),
+            fl.Ramp('very_left', .75, 1.5),
         ]
     ),
     fl.OutputVariable(
         name='Velocity',
-        description='',
+        description='Translational velocity',
         enabled=True,
         minimum=-.5,
-        maximum=1,
+        maximum=.6,
         lock_range=True,
         aggregation=fl.Maximum(),
-        defuzzifier=fl.Centroid(), # Maybe play with the resolution of centroid?
+        defuzzifier=fl.Centroid(),
         terms=[
             fl.Ramp('reverse', 0, -.5),
-            fl.Triangle('slow', -.05, .3, .6),
-            fl.Triangle('normal', .3, .6, 1), 
-            fl.Ramp('fast', .6, 1)
+            fl.Triangle('stop', -.05, 0, .05),
+            fl.Triangle('slow', 0, .1, .2),
+            fl.Triangle('normal', .1, .3, .5), 
+            fl.Ramp('fast', .4, .6)
         ]
     ),
 ]
