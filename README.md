@@ -84,8 +84,13 @@ where v and ω are the final velocity and angular velocity, v_f and ω_f are the
 
 ![](images/fusion_rules.png)
 
+Working together, the controller behaves as follows:
 
+![](images/demo_gifs/big_swarm.gif)    |  ![](images/demo_gifs/collision_avoidance2.gif)
+:-------------------------:|:-------------------------:
+Following in formation  |  Obstacle collision avoidance
 
+The obstacle collision avoidance gif demonstrates how the controller prioritizes staying in formation until an obstacle gets too close.
 
 ### Read on!
 Visit our project [website!](https://annagriffin.github.io/swarm_follow_leader/)
