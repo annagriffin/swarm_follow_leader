@@ -45,6 +45,14 @@ To obtain the angle from the image view, we used the width of the camera image, 
 
 The angle changes as leader changes place. When the robot is directly in the center of the view, the angle would be 0 degrees. When the robot is in the left side of the view, the angle is negative and when its on the right, it is positive. The horizontal field of view of the camera is 80 degrees in our case. This means that the angles should range from -40 to 40 degrees. The actual range for detecting robots in view is slightly more narrow than that. The angle is calculated with the center point fo the detected tag. In order for the tag to be detected, all four corners must be visible. This means that the center point can't be all the way on the edge of the camera view even though it is still in the view.
 
+#### Finding the distance
+We also could get the distance from camera calibration and the image view. This turned out to not be necessary since we relied on the neato's lidar detection, but we calculated it anyways to have a fall back and we were learning about camera,calibration, and distortion. The horizontal field of view was set for us in the camera model and using that, the focal lengh can be found by calculating `(width / 2) / tan(h_fov/2)` where `h_fov` is in radians.
+
+
+![](images/hfov.png)    |  ![](images/focal_length.jpg)
+:-------------------------:|:-------------------------:
+Detecting Multiple Tags  |  Revised Tag Detection
+
 
 ### Controller
 
