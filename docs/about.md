@@ -11,10 +11,6 @@ feature-img: "assets/img/sample_feature_img_2.png"
 <br>
 <br>
 
-<div style="display: flex; justify-content: center;">
-
-  <div class="container">
-    <!-- <img src="assets/img/richard.jpeg" alt="richard gao" width=250 style="border-radius:50%;"> -->
 
 ![](assets/img/richard.jpeg)
 
@@ -27,10 +23,8 @@ Github: https://github.com/hardlyrichie<br>
 LinkedIn: https://www.linkedin.com/in/hardlyrichie<br>
 Website: https://www.richgao.com
 
-  </div>
-
-  <div class="container">
-    <!-- <img src="assets/img/anna.png" alt="Anna Griffin" width=250 style="border-radius:50%;"> -->
+<br>
+<br>
 
 ![](assets/img/anna.png)
 
@@ -42,5 +36,4 @@ Email: agriffin@olin.edu<br>
 Github: https://github.com/annagriffin<br>
 LinkedIn: https://www.linkedin.com/in/annagriffin4859
 
-  </div>
-</div>
+
