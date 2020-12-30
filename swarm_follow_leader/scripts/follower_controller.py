@@ -14,7 +14,7 @@ from fusion_engine import fusion_engine
 import sys
 
 class Follower:
-    """" ROS node for follower robot controller """
+    """ ROS node for follower robot controller """
     def __init__(self, robot_ns):
         rospy.init_node(f'{robot_ns}_follower')
 
@@ -109,7 +109,7 @@ class Follower:
         return self.vel_formation.value, self.rot_formation.value
 
     def fuzzy_collision_avoidance(self):
-        """ Fuzzy logic controller that determines the robot commands to avoid obstacles """
+        """ Fuzzy logic controller that determines the robot commands to avoid obstacles and internal collision """
         # Skip if no laser distance data
         if self.laser_distances is None:
             return None, None
@@ -125,16 +125,29 @@ class Follower:
         return self.vel_avoidance.value, self.rot_avoidance.value
 
     def fuzzy_fusion(self, v1, r1, v2, r2):
-        """ Fuzzy logic controller that combines formation and collision avoidance """
+        """
+        Fuzzy logic controller that combines formation and collision avoidance
+        
+        Args:
+            v1: velocity output from fuzzy_formation()
+            r1: angular_velocity output from fuzzy_formation()
+            v2: velocity output from fuzzy_collision_avoidance()
+            r2: angular_velocity output from fuzzy_collision_avoidance()
+        Returns:
+            v_final: final velocity calculated from a weighted sum of formation and collision avoidance
+            r_final: final angular velocity calculated from a weighted sum of formation and collision avoidance
+        """
         self.position_measure.value = abs(self.distance.value)
         self.min_laser.value = min(self.left_laser.value, self.right_laser.value, self.front_laser.value)
 
         # Perform fuzzy inference
         fusion_engine.process()
 
+        # Get weights
         f_W = self.formation_weight.value
         c_W = self.collision_weight.value
 
+        # Perform weighted sum calculation
         v_final = v1 * f_W + v2 * c_W
         r_final = r1 * f_W + r2 * c_W
 
@@ -166,6 +179,7 @@ class Follower:
                 self.laser_distances = None
                 self.offset_angle = None
             else:
+                # Stop movement if there is no valid output from fuzzy controllers
                 m.linear.x = 0
                 m.angular.z =  0
 
@@ -176,5 +190,6 @@ class Follower:
         print("Shutting down")
 
 if __name__ == '__main__':
+    # Command line argument for which robot namespace topic to subscribe to
     node = Follower(sys.argv[1])
     node.run()
