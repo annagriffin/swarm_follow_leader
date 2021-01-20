@@ -13,7 +13,11 @@ theme_settings:
 
   # Header and footer text
   header_text: >
-     <p>Hi there! Thanks for visiting our project website :) This is our final project for the class ENGR3590 A Computational Introduction to Robotics at <a href="https://www.olin.edu//">Olin College of Engineering</a>. We have implemented a follow the leader simulation using Neatos, ROS, and Gazebo.</p>
+     <h2>Thanks for visiting!</h2>
+     <p>This is our final project for the class ENGR3590 A Computational Introduction to Robotics at<a href="https://www.olin.edu/">Olin College of Engineering</a>. We have implemented a follow the leader simulation in Gazebo using Neatos, ROS, AR tags, and a Fuzzy Logic controller.</p>
+
+     <p>Read about our process below and check out our demos <a href="https://annagriffin.github.io/swarm_follow_leader/demos/">here!</a></p>
+     
 
   header_text_feature_image:
   footer_text: >
